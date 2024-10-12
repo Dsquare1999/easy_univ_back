@@ -23,6 +23,7 @@ class ClasseSeeder extends Seeder
             'filiere' => Filiere::first()->id,  // Assign first Filiere
             'cycle' => Cycle::first()->id,      // Assign first Cycle
             'year' => $faker->year,
+            'academic_year' => $faker->year,
         ]);
     }
 }

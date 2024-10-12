@@ -2,16 +2,20 @@
 
 namespace App\Models;
 
-use App\Models\Classe;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Auth;
 
-class Student extends Model
+use App\Models\Releve;
+use App\Models\Program;
+use App\Models\Classe;
+use App\Models\User;
+use Illuminate\Support\Str;
+
+class Matiere extends Model
 {
     use HasFactory;
-    protected $fillable = ['user', 'classe', 'tag', 'file', 'titre', 'statut'];
+    protected $fillable = ['name', 'code', 'libelle', 'hours', 'classe', 'teacher', 'coefficient', 'year_part'];
 
     public $incrementing = false; 
     protected $keyType = 'string';
@@ -21,7 +25,6 @@ class Student extends Model
         parent::boot();
         static::creating(function ($model) {
             $model->id = (string) Str::uuid();
-            $model->user = Auth::id();
         });
     }
 
@@ -30,18 +33,18 @@ class Student extends Model
         return $this->belongsTo(Classe::class, 'classe');
     }
 
-    public function user()
+    public function teacher()
     {
-        return $this->belongsTo(User::class, 'user');
-    }
-
-    public function tag()
-    {
-        return $this->belongsTo(Tag::class, 'tag');
+        return $this->belongsTo(User::class, 'teacher');
     }
 
     public function releves(): HasMany
     {
         return $this->hasMany(Releve::class, 'matiere');
+    }
+
+    public function programs(): HasMany
+    {
+        return $this->hasMany(Program::class, 'matiere');
     }
 }

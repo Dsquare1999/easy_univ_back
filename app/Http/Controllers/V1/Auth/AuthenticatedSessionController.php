@@ -9,6 +9,7 @@ use App\Http\Requests\V1\Auth\UpdateCoverRequest;
 
 use Carbon\Carbon;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
@@ -25,6 +26,30 @@ enum TokenAbility: string
 
 class AuthenticatedSessionController extends Controller
 {
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        try {
+            $users = User::paginate(8);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Users retrieved successfully',
+                'data'    => $users,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve users',
+                'errors'  => ['message' => $e->getMessage()],
+            ], 500);
+        }
+    }
+
     /**
      * Handle an incoming authentication request.
      */
@@ -84,7 +109,8 @@ class AuthenticatedSessionController extends Controller
         try {
             $user = $request->user();
 
-            $user->name = $request->input('name', $user->name);
+            $user->firstname = $request->input('firstname', $user->firstname);
+            $user->lastname = $request->input('lastname', $user->lastname);
             $user->email = $request->input('email', $user->email);
             $user->bio = $request->input('bio', $user->bio);
             $user->phone = $request->input('phone', $user->phone);
@@ -158,6 +184,67 @@ class AuthenticatedSessionController extends Controller
         }
     }
 
+    public function turnProfessor(Request $request){
+        $response = [
+            'success' => false,
+            'message' => 'Not turned into professor successfully',
+            'data'    => [],
+            'errors'  => []
+        ];
+        $responseCode = 500;
+
+        try {
+            $user = User::findOrFail($request->input('id'));            
+            
+            if($user->update(['type' => 1])){
+                $response['success'] = true;
+                $response['message'] = 'Turned into professor successfully';
+                $response['data'] = $user;
+                $responseCode = 200;
+            }
+            
+
+            return response()->json($response, $responseCode);
+
+        } catch (\Throwable $th) {
+            $response['errors'] = [
+                'message' => $th->getMessage(),
+            ];
+            return response()->json($response, $responseCode);
+        }
+    }
+
+    public function turnStudent(Request $request){
+        $response = [
+            'success' => false,
+            'message' => 'Not turned into student successfully',
+            'data'    => [],
+            'errors'  => []
+        ];
+        $responseCode = 500;
+
+        try {
+            $user = User::findOrFail($request->input('id'));
+
+            if($user->update(['type' => 0])){
+                $response['success'] = true;
+                $response['message'] = 'Turned into student successfully';
+                $response['data'] = $user;
+                $responseCode = 200;
+            }
+            
+
+            return response()->json($response, $responseCode);
+
+        } catch (\Throwable $th) {
+            $response['errors'] = [
+                'message' => $th->getMessage(),
+            ];
+            return response()->json($response, $responseCode);
+        }
+    }
+
+
 
     /**
      * Refresh an authenticated session.
@@ -180,5 +267,36 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         return response()->noContent();
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function deleteUser($id)
+    {
+        try {
+            $user = User::findOrFail($id);
+
+            $user->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'User deleted successfully',
+            ], 200);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found',
+                'errors'  => ['message' => $e->getMessage()],
+            ], 404);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete user',
+                'errors'  => ['message' => $e->getMessage()],
+            ], 500);
+        }
     }
 }

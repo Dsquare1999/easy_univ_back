@@ -18,9 +18,11 @@ class UserSeeder extends Seeder
         $faker = Faker::create();
 
         User::create([
-            'name' => $faker->name,
+            'firstname' => $faker->firstName,
+            'lastname' => $faker->lastName,
             'email' => $faker->unique()->safeEmail,
-            'password' => Hash::make('password'),  // Default password
+            'password' => Hash::make('password'),
+            'type' => $faker->boolean
         ]);
     }
 }

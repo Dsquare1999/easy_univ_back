@@ -19,7 +19,7 @@ class FichePreInscriptionController extends Controller
         if (Storage::directoryMissing('inscriptions')){
             Storage::makeDirectory('inscriptions');
         }
-        $filename = 'preinscription_' .str_replace(' ', '_', strtolower($cycle->name)). '_' . str_replace(' ', '_', strtolower($filiere->name)). '_' . str_replace(' ', '_', strtolower($user->name)) . '.pdf';
+        $filename = 'preinscription_' .str_replace(' ', '_', strtolower($cycle->name)). '_' . str_replace(' ', '_', strtolower($filiere->name)). '_' . str_replace(' ', '_', strtolower($user->firstname.' '.$user->lastname)) . '.pdf';
         $success = true;
         try {
             PDF::loadview('inscription.preinscription', [

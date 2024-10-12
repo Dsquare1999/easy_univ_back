@@ -13,13 +13,15 @@ return new class extends Migration
     {
         Schema::create('students', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->uuid('user');
             $table->uuid('classe');
             $table->uuid('tag')->nullable();
             $table->enum('titre', ['BRS', 'ATP', 'SPR'])->default('ATP');
+            #status not statut
             $table->enum('statut', ['EN ATTENTE', 'PRE-INSCRIT', 'REFUSE', 'INSCRIT'])->default('EN ATTENTE');
             $table->string('file')->nullable();
 
-            $table->foreignId('user')->constrained()->onDelete('cascade');
+            $table->foreign('user')->references('id')->on('users')->constrained()->onDelete('cascade');
             $table->foreign('classe')->references('id')->on('classes')->onDelete('cascade');
             $table->foreign('tag')->references('id')->on('tags')->onDelete('set null');
 

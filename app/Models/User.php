@@ -7,6 +7,9 @@ use App\Models\Classe;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Model;
+
 
 use Laravel\Sanctum\HasApiTokens;
 
@@ -24,15 +27,28 @@ class User extends Authenticatable
         return $this->hasMany(Invoice::class);
     }
 
+    public $incrementing = false;  
+    protected $keyType = 'string';
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            $model->id = (string) Str::uuid();
+        });
+    }
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'firstname',
+        'lastname',
         'email',
         'password',
+        'type',
         'phone',
         'profile',
         'cover',

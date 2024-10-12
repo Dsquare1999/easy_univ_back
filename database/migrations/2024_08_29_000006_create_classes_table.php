@@ -16,6 +16,9 @@ return new class extends Migration
             $table->uuid('filiere'); 
             $table->uuid('cycle'); 
             $table->integer('year');
+            $table->integer('academic_year');
+            $table->enum('parts', ['SEM', 'TRI']);
+            $table->integer('status')->default(0);
             
             $table->foreign('cycle')->references('id')->on('cycles')->onDelete('cascade');
             $table->foreign('filiere')->references('id')->on('filieres')->onDelete('cascade');

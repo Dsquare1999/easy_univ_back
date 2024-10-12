@@ -6,6 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Str;
+use App\Models\Cycle;
 use App\Models\Classe;
 
 class StoreClasseRequest extends FormRequest
@@ -41,7 +42,19 @@ class StoreClasseRequest extends FormRequest
         return [
             'filiere'        => 'required|exists:filieres,id',
             'cycle'          => 'required|exists:cycles,id',
-            'year'              => 'required|numeric|min:1',
+            'year'           => [
+                'required',
+                'numeric',
+                'min:1',
+                function ($attribute, $value, $fail) {
+                    $cycle = Cycle::find($this->input('cycle'));
+                    if ($cycle && $value > $cycle->duration) {
+                        $fail("The year must be between 1 and {$cycle->duration}.");
+                    }
+                }
+            ],
+            'parts'          => 'required|in:SEM,TRI',
+            'academic_year'  => 'required|string',
         ];
     }
 

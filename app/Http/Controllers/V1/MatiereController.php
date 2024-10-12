@@ -4,16 +4,12 @@ namespace App\Http\Controllers\V1;
 
 use App\Models\User;
 use App\Models\Classe;
-use App\Models\Filiere;
-use App\Models\Cycle;
-use App\Models\Student;
+use App\Models\Matiere;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\V1\StoreClasseRequest;
-use App\Http\Requests\V1\UpdateClasseRequest;
+use App\Http\Requests\V1\StoreMatiereRequest;
+use App\Http\Requests\V1\UpdateMatiereRequest;
 
-use Illuminate\Support\Facades\Auth;
-
-class ClasseController extends Controller
+class MatiereController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -21,29 +17,20 @@ class ClasseController extends Controller
     public function index()
     {
         try {
-
-            $user = Auth()->user();
-                
-            $filieres = Filiere::all();
-            $cycles = Cycle::all();
-            $classes = Classe::with(['cycle', 'filiere', 'matieres.teacher', 'matieres.releves.student.user', 'matieres.programs.report'])->get();
-            $my_classes = Student::where('user', $user->id)->get();
+            $matieres = Matiere::with(['classe', 'teacher'])->get();
             $teachers = User::where('type', 1)->get();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Classes retrieved successfully',
-                'data'    => $classes,
-                'filieres' => $filieres,
-                'cycles' => $cycles,
-                'my_classes' => $my_classes,
+                'message' => 'Matieres retrieved successfully',
+                'data'    => $matieres,
                 'teachers' => $teachers
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve classes',
+                'message' => 'Failed to retrieve matieres',
                 'errors'  => ['message' => $e->getMessage()],
             ], 500);
         }
@@ -60,21 +47,22 @@ class ClasseController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreClasseRequest $request)
+    public function store(StoreMatiereRequest $request)
     {
         try {
-            $classe = Classe::create($request->validated());
+            $matiere = Matiere::create($request->validated());
+            $matiere = Matiere::with(['classe', 'teacher'])->findOrFail($matiere->id);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Classe created successfully',
-                'data'    => $classe,
+                'message' => 'Matiere created successfully',
+                'data'    => $matiere,
             ], 201);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create classe',
+                'message' => 'Failed to create matiere',
                 'errors'  => ['message' => $e->getMessage()],
             ], 500);
         }
@@ -86,25 +74,26 @@ class ClasseController extends Controller
     public function show($id)
     {
         try {
-            $classe = classe::findOrFail($id);
+            $matiere = Matiere::findOrFail($id);
+            $matiere = Matiere::with(['classe', 'teacher'])->findOrFail($matiere->id);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Classe retrieved successfully',
-                'data'    => $classe,
+                'message' => 'Matiere retrieved successfully',
+                'data'    => $matiere,
             ], 200);
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Classe not found',
+                'message' => 'Matiere not found',
                 'errors'  => ['message' => $e->getMessage()],
             ], 404);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve classe',
+                'message' => 'Failed to retrieve matiere',
                 'errors'  => ['message' => $e->getMessage()],
             ], 500);
         }
@@ -113,7 +102,7 @@ class ClasseController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Classe $classe)
+    public function edit(Matiere $matiere)
     {
         //
     }
@@ -121,30 +110,31 @@ class ClasseController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateClasseRequest $request, $id)
+    public function update(UpdateMatiereRequest $request, $id)
     {
         try {
-            $classe = Classe::findOrFail($id);
+            $matiere = Matiere::findOrFail($id);
 
-            $classe->update($request->validated());
+            $matiere->update($request->validated());
+            $matiere = Matiere::with(['classe', 'teacher'])->findOrFail($matiere->id);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Classe updated successfully',
-                'data'    => $classe,
+                'message' => 'Matiere updated successfully',
+                'data'    => $matiere,
             ], 200);
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Classe not found',
+                'message' => 'Matiere not found',
                 'errors'  => ['message' => $e->getMessage()],
             ], 404);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update classe',
+                'message' => 'Failed to update matiere',
                 'errors'  => ['message' => $e->getMessage()],
             ], 500);
         }
@@ -156,26 +146,26 @@ class ClasseController extends Controller
     public function destroy($id)
     {
         try {
-            $classe = Classe::findOrFail($id);
+            $matiere = Matiere::findOrFail($id);
 
-            $classe->delete();
+            $matiere->delete();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Classe deleted successfully',
+                'message' => 'Matiere deleted successfully',
             ], 200);
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Classe not found',
+                'message' => 'Matiere not found',
                 'errors'  => ['message' => $e->getMessage()],
             ], 404);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete classe',
+                'message' => 'Failed to delete matiere',
                 'errors'  => ['message' => $e->getMessage()],
             ], 500);
         }

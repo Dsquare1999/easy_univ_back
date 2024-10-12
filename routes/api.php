@@ -14,7 +14,10 @@ use App\Http\Controllers\V1\CycleController;
 use App\Http\Controllers\V1\FiliereController;
 use App\Http\Controllers\V1\InvoiceController;
 use App\Http\Controllers\V1\ClasseController;
+use App\Http\Controllers\V1\MatiereController;
 use App\Http\Controllers\V1\StudentController;
+use App\Http\Controllers\V1\ProgramController;
+use App\Http\Controllers\V1\ReleveController;
 
 
 enum TokenAbility: string
@@ -52,6 +55,14 @@ Route::prefix('/v1')->middleware(['auth'])->group(function(){
 
 });
 
+Route::prefix('/v1/users')->middleware('auth:sanctum', 'ability:' . TokenAbility::ACCESS_API->value)->group(function(){
+    Route::get("/", [AuthenticatedSessionController::class, "index"]);
+    Route::post("/turnProfessor", [AuthenticatedSessionController::class, "turnProfessor"]);
+    Route::post("/turnStudent", [AuthenticatedSessionController::class, "turnStudent"]);
+    Route::delete("/deleteUser/{id}", [AuthenticatedSessionController::class, "deleteUser"]);
+});
+
+
 
 Route::prefix('/v1/students')->middleware('auth:sanctum', 'ability:' . TokenAbility::ACCESS_API->value)->group(function(){
     Route::get("/", [StudentController::class, "index"]);
@@ -62,7 +73,7 @@ Route::prefix('/v1/students')->middleware('auth:sanctum', 'ability:' . TokenAbil
 });
 
 
-Route::prefix('/v1/tags')->group(function(){
+Route::prefix('/v1/tags')->middleware('auth:sanctum', 'ability:' . TokenAbility::ACCESS_API->value)->group(function(){
     Route::get("/", [TagController::class, "index"]);
     Route::get("/show/{id}", [TagController::class,"show"]);
     Route::post("/store", [TagController::class,"store"]);
@@ -78,6 +89,33 @@ Route::prefix('/v1/classes')->middleware('auth:sanctum', 'ability:' . TokenAbili
     Route::delete("/destroy/{id}",  [ClasseController::class,"destroy"]);
 });
  
+Route::prefix('/v1/matieres')->middleware('auth:sanctum', 'ability:' . TokenAbility::ACCESS_API->value)->group(function(){
+    Route::get("/", [MatiereController::class, "index"]);
+    Route::get("/show/{id}", [MatiereController::class,"show"]);
+    Route::post("/store", [MatiereController::class,"store"]);
+    Route::match(['put', 'patch'], '/update/{id}',  [MatiereController::class,"update"]);
+    Route::delete("/destroy/{id}",  [MatiereController::class,"destroy"]);
+});
+ 
+Route::prefix('/v1/programs')->middleware('auth:sanctum', 'ability:' . TokenAbility::ACCESS_API->value)->group(function(){
+    Route::get("/", [ProgramController::class, "index"]);
+    Route::get("/show/{id}", [ProgramController::class,"show"]);
+    Route::post("/store", [ProgramController::class,"store"]);
+    Route::post("/report", [ProgramController::class,"report"]);
+    Route::match(['put', 'patch'], '/update/{id}',  [ProgramController::class,"update"]);
+    Route::delete("/destroy/{id}",  [ProgramController::class,"destroy"]);
+});
+ 
+Route::prefix('/v1/releves')->middleware('auth:sanctum', 'ability:' . TokenAbility::ACCESS_API->value)->group(function(){
+    Route::get("/", [ReleveController::class, "index"]);
+    Route::get("/show/{id}", [ReleveController::class,"show"]);
+    Route::post("/store", [ReleveController::class,"store"]);
+    Route::post("/mark", [ReleveController::class,"mark"]);
+    Route::post("/generate/{id}",  [ReleveController::class,"generate"]);
+    Route::match(['put', 'patch'], '/update/{id}',  [ReleveController::class,"update"]);
+    Route::delete("/destroy/{id}",  [ReleveController::class,"destroy"]);
+});
+ 
 
 Route::prefix('/v1/cycles')->middleware('auth:sanctum', 'ability:' . TokenAbility::ACCESS_API->value)->group(function(){
     Route::get("/", [CycleController::class, "index"]);
@@ -87,8 +125,7 @@ Route::prefix('/v1/cycles')->middleware('auth:sanctum', 'ability:' . TokenAbilit
     Route::delete("/destroy/{id}",  [CycleController::class,"destroy"]);
 });
  
-// Route::prefix('/v1/filieres')->middleware('auth:sanctum', 'ability:' . TokenAbility::ACCESS_API->value)->group(function(){
-Route::prefix('/v1/filieres')->group(function(){
+Route::prefix('/v1/filieres')->middleware('auth:sanctum', 'ability:' . TokenAbility::ACCESS_API->value)->group(function(){
     Route::get("/", [FiliereController::class, "index"]);
     Route::get("/show/{id}", [FiliereController::class,"show"]);
     Route::post("/store", [FiliereController::class,"store"]);

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('number')->unique();
             $table->uuid('tag')->nullable();  
             $table->uuid('classe')->nullable();
+            $table->uuid('user');
             $table->text('description')->nullable();
             $table->decimal('amount', 10, 2);
             $table->decimal('remain', 10, 2);
@@ -23,7 +24,7 @@ return new class extends Migration
             $table->decimal('fee', 10, 2);
             $table->string('file');
 
-            $table->foreignId('user')->constrained()->onDelete('cascade');
+            $table->foreign('user')->references('id')->on('users')->constrained()->onDelete('cascade');
             $table->foreign('tag')->references('id')->on('tags')->onDelete('set null');
             $table->foreign('classe')->references('id')->on('classes')->onDelete('set null');
             $table->timestamps();

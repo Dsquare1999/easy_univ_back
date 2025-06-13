@@ -23,7 +23,7 @@ jobs:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: easy_univ
         ports:
-          - 3307:3307
+        - 3306:3306
         options: >-
           --health-cmd="mysqladmin ping -h 127.0.0.1 -u root --password=root"
           --health-interval=10s
@@ -56,7 +56,7 @@ jobs:
         run: |
           echo "DB_CONNECTION=mysql" >> .env
           echo "DB_HOST=127.0.0.1" >> .env
-          echo "DB_PORT=3307" >> .env
+          echo "DB_PORT=3306" >> .env
           echo "DB_DATABASE=easy_univ" >> .env
           echo "DB_USERNAME=root" >> .env
           echo "DB_PASSWORD=root" >> .env

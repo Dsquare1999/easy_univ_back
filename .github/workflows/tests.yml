@@ -16,12 +16,24 @@ jobs:
   tests:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: easy_univ_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
     strategy:
       fail-fast: true
       matrix:
         php: [8.2, 8.3]
-
-    name: PHP ${{ matrix.php }}
 
     steps:
       - name: Checkout code
@@ -31,7 +43,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, pdo_mysql
           coverage: none
 
       - name: Install Composer dependencies
@@ -40,8 +52,20 @@ jobs:
       - name: Copy environment file
         run: cp .env.example .env
 
+      - name: Update .env database settings
+        run: |
+          echo "DB_CONNECTION=mysql" >> .env
+          echo "DB_HOST=127.0.0.1" >> .env
+          echo "DB_PORT=3307" >> .env
+          echo "DB_DATABASE=easy_univ" >> .env
+          echo "DB_USERNAME=root" >> .env
+          echo "DB_PASSWORD=root" >> .env
+
       - name: Generate app key
         run: php artisan key:generate
 
-      - name: Execute tests
+      - name: Run migrations
+        run: php artisan migrate --force
+
+      - name: Run tests
         run: vendor/bin/phpunit

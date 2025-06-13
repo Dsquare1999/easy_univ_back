@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('matieres', function (Blueprint $table) {
             $table->uuid('id')->primary(); 
             $table->uuid('classe');
+            $table->uuid('unite');
             $table->uuid('teacher')->nullable();
 
             $table->string('name');
@@ -25,6 +26,7 @@ return new class extends Migration
 
             $table->foreign('teacher')->references('id')->on('users')->constrained()->onDelete('set null');
             $table->foreign('classe')->references('id')->on('classes')->onDelete('cascade');
+            $table->foreign('unite')->references('id')->on('unites')->onDelete('cascade');
             $table->timestamps();
         });
     }

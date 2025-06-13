@@ -24,10 +24,37 @@ class CycleSeeder extends Seeder
 
         Cycle::create([
             'id' => (string) Str::uuid(),
-            'name' => 'Postgraduate',
-            'slug' => Str::slug('Postgraduate'),
-            'description' => 'This is the second cycle of the university',
+            'name' => 'Master',
+            'slug' => Str::slug('Master'),
+            'description' => 'This is the fifth cycle of the university',
             'duration' => 2,
         ]);
+
+        Cycle::create([
+            'id' => (string) Str::uuid(),
+            'name' => 'Engeneering',
+            'slug' => Str::slug('Engeneering'),
+            'description' => 'This is the third cycle of the university',
+            'duration' => 5,
+        ]);
+
+        Cycle::create([
+            'id' => (string) Str::uuid(),
+            'name' => 'Doctorate',
+            'slug' => Str::slug('Doctorate'),
+            'description' => 'This is the fourth cycle of the university',
+            'duration' => 3,
+        ]);
+
+
+        Cycle::create([
+            'id' => (string) Str::uuid(),
+            'name' => 'PhD',
+            'slug' => Str::slug('PhD'),
+            'description' => 'This is the sixth cycle of the university',
+            'duration' => 4,
+        ]);
+
+
     }
 }

@@ -2,19 +2,13 @@
 
 namespace App\Http\Controllers\V1;
 
-use App\Models\User;
-use App\Models\Classe;
-use App\Models\Filiere;
-use App\Models\Cycle;
-use App\Models\Student;
 use App\Models\Unite;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\V1\StoreClasseRequest;
-use App\Http\Requests\V1\UpdateClasseRequest;
+use App\Http\Requests\V1\StoreUniteRequest;
+use App\Http\Requests\V1\UpdateUniteRequest;
+use Illuminate\Http\Request;
 
-use Illuminate\Support\Facades\Auth;
-
-class ClasseController extends Controller
+class UniteController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -22,33 +16,18 @@ class ClasseController extends Controller
     public function index()
     {
         try {
-
-            $user = Auth()->user();
-            
-            $filieres = Filiere::all();
-            $cycles = Cycle::all();
-            $classes = Classe::with(['cycle', 'filiere', 'matieres.teacher', 'matieres.releves.student.user', 'matieres.programs.report', 'matieres.unite:id,name,code'])->get();
-            $my_classes = Student::where('user', $user->id)->get();
-            $teachers = User::where('type', 1)->get();
-            $users = User::where('type', 0)->get();
             $unites = Unite::all();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Classes retrieved successfully',
-                'data'    => $classes,
-                'filieres' => $filieres,
-                'cycles' => $cycles,
-                'unites' => $unites,
-                'my_classes' => $my_classes,
-                'teachers' => $teachers,
-                'users' => $users,
+                'message' => 'Units retrieved successfully',
+                'data'    => $unites,
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve classes',
+                'message' => 'Failed to retrieve units',
                 'errors'  => ['message' => $e->getMessage()],
             ], 500);
         }
@@ -65,22 +44,21 @@ class ClasseController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreClasseRequest $request)
+    public function store(StoreUniteRequest $request)
     {
         try {
-            $classe = Classe::create($request->validated());
-            $classe = Classe::with(['cycle', 'filiere', 'matieres.teacher', 'matieres.releves.student.user', 'matieres.programs.report'])->findOrFail($classe->id);
+            $unite = Unite::create($request->validated());
 
             return response()->json([
                 'success' => true,
-                'message' => 'Classe created successfully',
-                'data'    => $classe,
+                'message' => 'Unit created successfully',
+                'data'    => $unite,
             ], 201);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create classe',
+                'message' => 'Failed to create unit',
                 'errors'  => ['message' => $e->getMessage()],
             ], 500);
         }
@@ -92,26 +70,25 @@ class ClasseController extends Controller
     public function show($id)
     {
         try {
-            $classe = Classe::with(['cycle', 'filiere', 'matieres.teacher', 'matieres.releves.student.user', 'matieres.programs.report', 'matieres.unite:id,name,code'])->findOrFail($id);
-
+            $unite = Unite::findOrFail($id);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Classe retrieved successfully',
-                'data'    => $classe,
+                'message' => 'Unit retrieved successfully',
+                'data'    => $unite,
             ], 200);
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Classe not found',
+                'message' => 'Unit not found',
                 'errors'  => ['message' => $e->getMessage()],
             ], 404);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve classe',
+                'message' => 'Failed to retrieve unit',
                 'errors'  => ['message' => $e->getMessage()],
             ], 500);
         }
@@ -120,7 +97,7 @@ class ClasseController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Classe $classe)
+    public function edit(Unite $unite)
     {
         //
     }
@@ -128,32 +105,30 @@ class ClasseController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateClasseRequest $request, $id)
+    public function update(UpdateUniteRequest $request, $id)
     {
         try {
-            $classe = Classe::findOrFail($id);
+            $unit = Unite::findOrFail($id);
 
-            $classe->update($request->validated());
-
-            $classe = Classe::with(['cycle', 'filiere', 'matieres.teacher', 'matieres.releves.student.user', 'matieres.programs.report'])->findOrFail($id);
+            $unit->update($request->validated());
 
             return response()->json([
                 'success' => true,
-                'message' => 'Classe updated successfully',
-                'data'    => $classe,
+                'message' => 'Unit updated successfully',
+                'data'    => $unit,
             ], 200);
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Classe not found',
+                'message' => 'unit not found',
                 'errors'  => ['message' => $e->getMessage()],
             ], 404);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update classe',
+                'message' => 'Failed to update unit',
                 'errors'  => ['message' => $e->getMessage()],
             ], 500);
         }
@@ -165,26 +140,26 @@ class ClasseController extends Controller
     public function destroy($id)
     {
         try {
-            $classe = Classe::findOrFail($id);
+            $unit = Unite::findOrFail($id);
 
-            $classe->delete();
+            $unit->delete();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Classe deleted successfully',
+                'message' => 'Unit deleted successfully',
             ], 200);
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Classe not found',
+                'message' => 'Unit not found',
                 'errors'  => ['message' => $e->getMessage()],
             ], 404);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete classe',
+                'message' => 'Failed to delete unit',
                 'errors'  => ['message' => $e->getMessage()],
             ], 500);
         }

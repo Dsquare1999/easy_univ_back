@@ -15,6 +15,7 @@ use App\Models\User;
 use App\Models\Student;
 use App\Models\Cycle;
 use App\Models\Filiere;
+use App\Models\Releve;
 use Illuminate\Http\Request;
 use App\Http\Requests\V1\StoreStudentRequest;
 use App\Http\Requests\V1\ValidateStudentRequest;
@@ -57,7 +58,16 @@ class StudentController extends Controller
         try {
             $validated = $request->validated();
 
-            $validated['user'] = Auth::id();
+            // $validated['user'] = Auth::id();
+
+            if(Student::where('user', $validated['user'])->where('classe', $validated['classe'])->exists()){
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Student already exists for this classe',
+                    'errors'  => ['message' => 'Student already exists for this classe'],
+                ], 409);
+            }
+
             $student = Student::create($validated);
 
             $user       = User::findOrFail($student->user);
@@ -108,15 +118,25 @@ class StudentController extends Controller
             $cycle      = Cycle::findOrFail($classe->cycle);
             $filiere    = Filiere::findOrFail($classe->filiere);
 
+            foreach ($classe->matieres as $matiere) {
+                Releve::create([
+                    'student'   => $student->id,
+                    'matiere'   => $matiere->id,
+                    'classe'    => $classe->id,
+                ]);
+            }
 
             $student= Student::findOrFail($student_id);
             $fichePreInscriptionController = new FichePreInscriptionController();
             $pdfresponse = $fichePreInscriptionController($user, $student, $classe, $filiere, $cycle); 
-            if($pdfresponse['success']){
-                $student->update([
-                    'file' => $pdfresponse['filename']
-                ]);
+
+            if (!$pdfresponse['success']) {
+                throw new \Exception('Failed to generate PDF: ' . ($pdfresponse['error'] ?? 'Unknown error'));
             }
+
+            $student->update([
+                'file' => $pdfresponse['filename']
+            ]);
 
             $notificationPreinscription = new PreinscriptionNotification($student, $classe, $cycle, $filiere);
             $user->notify($notificationPreinscription);

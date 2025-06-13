@@ -21,7 +21,7 @@ class Student extends Model
         parent::boot();
         static::creating(function ($model) {
             $model->id = (string) Str::uuid();
-            $model->user = Auth::id();
+            // $model->user = Auth::id();
         });
     }
 

@@ -10,6 +10,7 @@ use App\Models\Matiere;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
@@ -17,21 +18,6 @@ use Illuminate\Support\Str;
 class Classe extends Model
 {
     use HasFactory;
-
-    public function students(): BelongsToMany
-    {
-        return $this->belongsToMany(User::class, 'classe_user', 'classe', 'user');
-    }
-
-    public function tags(): BelongsToMany
-    {
-        return $this->belongsToMany(Tag::class, 'classe_tag', 'classe', 'tag');
-    }
-
-    public function matieres(): HasMany
-    {
-        return $this->hasMany(Matiere::class, 'classe', 'id');
-    }
 
     protected $fillable = ['filiere', 'cycle', 'year', 'academic_year', 'parts', 'status'];
 
@@ -45,6 +31,22 @@ class Classe extends Model
             $model->id = (string) Str::uuid();
         });
     }
+
+    public function students()
+    {
+        return $this->hasMany(Student::class, 'classe');
+    }
+
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(Tag::class, 'classe_tag', 'classe', 'tag');
+    }
+
+    public function matieres(): HasMany
+    {
+        return $this->hasMany(Matiere::class, 'classe', 'id');
+    }
+
 
     public function cycle()
     {

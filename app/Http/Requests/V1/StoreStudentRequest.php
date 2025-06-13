@@ -7,6 +7,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Str;
 use App\Models\Student;
+use App\Models\User;
 
 class StoreStudentRequest extends FormRequest
 {
@@ -37,6 +38,16 @@ class StoreStudentRequest extends FormRequest
     {
         return [
             'classe'     => 'required|exists:classes,id',
+            'user'      => [
+                'required',
+                'exists:users,id',
+                function ($attribute, $value, $fail) {
+                    $user = User::find($value);
+                    if ($user && $user->type != 0) {
+                        $fail('Les enseignants ne peuvent pas s\'inscrire à un cours.');
+                    }
+                }
+            ],
         ];
     }
 
@@ -47,6 +58,7 @@ class StoreStudentRequest extends FormRequest
     {
         return [
             'classe.required'    => 'The classe is required.',
+            'user.required'    => 'The user is required.',
             'classe.exists'      => 'This classe is not valid.',
         ];
     }

@@ -134,33 +134,36 @@ class ReleveController extends Controller
             $notes = [];
             $classe = Classe::with(['matieres'])->findOrFail($id);
             $matieres = $classe->matieres;
+            $students = $classe->students;
 
             $releves = Releve::with(['matiere', 'student.user'])->where('classe', $id)->get();
-            $user_count = 0;
-            foreach ($releves as $releve) {
-                $note = [];
-                $user_count++;
-                $student = Student::findOrFail($releve->student);
+
+            foreach ($students as $student) {
                 $user = User::findOrFail($student->user);
-                $user_name = $user->firstname . ' ' . $user->lastname;
-                $note[$user_count]['name'] = $user_name;
-                $count_non_validated = 0;
-                foreach ($matieres as $matiere) {
-                    if($matiere->id != $releve->matiere){
-                        continue;
-                    }
-                    $matiere_name = $matiere->libelle;
-                    $moyenne = (($releve->exam1 + $releve->exam2)/2 + $releve->partial) / 3;
-                    if($moyenne < 10){
-                        $count_non_validated++;
-                    }
-                    $note[$user_count][$matiere_name] = $moyenne;
+                if(!$user){
+                    continue;
                 }
 
+                $note = [];
+                $count_non_validated = 0;
+                $note['name'] = $user->firstname . ' ' . $user->lastname;
+                foreach ($releves as $releve) {
+                    if($releve->student == $student->id){
+                        $moyenne = (($releve->exam1 + $releve->exam2)/2 + $releve->partial) / 3;
+                        if($releve->remedial){
+                            $moyenne = $releve->remedial;
+                        }
+                        $moyenne = round($moyenne, 2);
+                        if($moyenne < 10){
+                            $count_non_validated++;
+                        }
+                        $note[$releve->matiere] = $moyenne;
+                    }
+                }
                 if($count_non_validated > 0){
-                    $note[$user_count]['decision'] = $count_non_validated.' ECUE non validées';
+                    $note['decision'] = $count_non_validated.' ECUE non validées';
                 }else{
-                    $note[$user_count]['decision'] = 'Validé';
+                    $note['decision'] = 'Validé';
                 }
                 array_push($notes, $note);
             }
@@ -193,7 +196,8 @@ class ReleveController extends Controller
             ], 500);
         }
     }
-    
+
+
 
 
     /**
@@ -210,7 +214,7 @@ class ReleveController extends Controller
                 'message' => 'Releve retrieved successfully',
                 'data'    => $releve,
             ], 200);
-
+ 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,

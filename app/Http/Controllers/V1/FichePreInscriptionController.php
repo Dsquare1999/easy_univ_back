@@ -21,6 +21,8 @@ class FichePreInscriptionController extends Controller
         }
         $filename = 'preinscription_' .str_replace(' ', '_', strtolower($cycle->name)). '_' . str_replace(' ', '_', strtolower($filiere->name)). '_' . str_replace(' ', '_', strtolower($user->firstname.' '.$user->lastname)) . '.pdf';
         $success = true;
+        $error = null;
+        $path = Storage::path('inscriptions') .DIRECTORY_SEPARATOR. $filename;
         try {
             PDF::loadview('inscription.preinscription', [
                 'user' => $user,
@@ -29,17 +31,20 @@ class FichePreInscriptionController extends Controller
                 'filiere' => $filiere,
                 'cycle' => $cycle
             ])
-            ->save($path = Storage::path('inscriptions') .DIRECTORY_SEPARATOR. $filename)
-            ->stream('preinscription.pdf');
+            ->save($path = Storage::path('inscriptions') .DIRECTORY_SEPARATOR. $filename);
             
         } catch (\Throwable $th) {
             $success = false;
+            $filename = null;
+            $error = $th->getMessage();
         }
         
 
         return array(
             'success' => $success,
-            'filename' => $filename
+            'filename' => $filename,
+            'error' => $error,
+            'path' => $path,
         );
     }
 }

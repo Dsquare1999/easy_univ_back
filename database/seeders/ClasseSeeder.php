@@ -22,7 +22,7 @@ class ClasseSeeder extends Seeder
         Classe::create([
             'filiere' => Filiere::first()->id,  // Assign first Filiere
             'cycle' => Cycle::first()->id,      // Assign first Cycle
-            'year' => $faker->year,
+            'year' => $faker->numberBetween(1, 3),
             'academic_year' => $faker->year,
         ]);
     }

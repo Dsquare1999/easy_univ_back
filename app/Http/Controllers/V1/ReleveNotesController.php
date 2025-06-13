@@ -19,23 +19,26 @@ class ReleveNotesController extends Controller
         if (Storage::directoryMissing('releves')){
             Storage::makeDirectory('releves');
         }
-        $filename = 'releve_' .str_replace(' ', '_', strtolower($cycle->name)). '_' . str_replace(' ', '_', strtolower($filiere->name)) . '.pdf';
+        $filename = 'releve_' . str_replace(' ', '_', strtolower($cycle->name)) . '_' . str_replace(' ', '_', strtolower($filiere->name)) . '_' . str_replace(' ', '_', strtolower($classe->name)). '_' . now()->format('YmdHis') . '.pdf';
         $success = true;
         try {
             PDF::loadview('releves.semestre1', [
                 'matieres' => $matieres,
                 'notes' => $notes,
             ])->setPaper('a4', 'landscape')
-            ->save($path = Storage::path('releves') .DIRECTORY_SEPARATOR. $filename)
-            ->stream('releve.pdf');
+            ->save($path = Storage::path('releves') .DIRECTORY_SEPARATOR. $filename);
+
             
         } catch (\Throwable $th) {
             $success = false;
+            $error = $th->getMessage();
         }
 
         return array(
             'success' => $success,
-            'filename' => $filename
+            'filename' => $filename,
+            'error' => $success ? null : $error,
+            'notes' => $notes
         );
     }
 }

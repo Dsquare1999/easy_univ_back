@@ -24,5 +24,37 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password'),
             'type' => $faker->boolean
         ]);
+
+        User::create([
+            'firstname' => $faker->firstName,
+            'lastname' => $faker->lastName,
+            'email' => $faker->unique()->safeEmail,
+            'password' => Hash::make('password'),
+            'type' => $faker->boolean
+        ]);
+
+        User::create([
+            'firstname' => $faker->firstName,
+            'lastname' => $faker->lastName,
+            'email' => $faker->unique()->safeEmail,
+            'password' => Hash::make('password'),
+            'type' => $faker->boolean
+        ]);
+
+        User::create([
+            'firstname' => $faker->firstName,
+            'lastname' => $faker->lastName,
+            'email' => $faker->unique()->safeEmail,
+            'password' => Hash::make('password'),
+            'type' => $faker->boolean
+        ]);
+
+        User::create([
+            'firstname' => $faker->firstName,
+            'lastname' => $faker->lastName,
+            'email' => $faker->unique()->safeEmail,
+            'password' => Hash::make('password'),
+            'type' => $faker->boolean
+        ]);
     }
 }

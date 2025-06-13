@@ -68,9 +68,9 @@ class StoreClasseRequest extends FormRequest
     {
         return [
             'filiere.required'       => 'Le champ filiere est requis.',
-            'cycle.required'         => 'Le champ filiere est requis.',
+            'cycle.required'         => 'Le champ cycle est requis.',
             'filiere.exists'         => 'Le champ filiere est invalide.',
-            'cycle.exists'           => 'Le champ filiere est invalide.',
+            'cycle.exists'           => 'Le champ cycle est invalide.',
             'number.unique'          => 'L\'année doit être un entier.',
         ];
     }

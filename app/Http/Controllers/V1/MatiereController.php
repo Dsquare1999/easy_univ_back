@@ -5,6 +5,9 @@ namespace App\Http\Controllers\V1;
 use App\Models\User;
 use App\Models\Classe;
 use App\Models\Matiere;
+use App\Models\Unite;
+use App\Models\Releve;
+
 use App\Http\Controllers\Controller;
 use App\Http\Requests\V1\StoreMatiereRequest;
 use App\Http\Requests\V1\UpdateMatiereRequest;
@@ -17,14 +20,16 @@ class MatiereController extends Controller
     public function index()
     {
         try {
-            $matieres = Matiere::with(['classe', 'teacher'])->get();
+            $matieres = Matiere::with(['classe', 'teacher', 'unite:id,name,code'])->get();
             $teachers = User::where('type', 1)->get();
+            $unites = Unite::all();
 
             return response()->json([
                 'success' => true,
                 'message' => 'Matieres retrieved successfully',
                 'data'    => $matieres,
-                'teachers' => $teachers
+                'teachers' => $teachers,
+                'unites' => $unites,	
             ], 200);
 
         } catch (\Exception $e) {
@@ -51,7 +56,16 @@ class MatiereController extends Controller
     {
         try {
             $matiere = Matiere::create($request->validated());
-            $matiere = Matiere::with(['classe', 'teacher'])->findOrFail($matiere->id);
+            $matiere = Matiere::with(['classe', 'teacher', 'unite:id,name,code'])->findOrFail($matiere->id);
+
+            $classe     = Classe::findOrFail($matiere->classe);
+            foreach ($classe->students as $student) {
+                Releve::create([
+                    'student'   => $student->id,
+                    'matiere'   => $matiere->id,
+                    'classe'    => $classe->id,
+                ]);
+            }
 
             return response()->json([
                 'success' => true,
@@ -75,7 +89,7 @@ class MatiereController extends Controller
     {
         try {
             $matiere = Matiere::findOrFail($id);
-            $matiere = Matiere::with(['classe', 'teacher'])->findOrFail($matiere->id);
+            $matiere = Matiere::with(['classe', 'teacher', 'unite:id,name,code'])->findOrFail($matiere->id);
 
             return response()->json([
                 'success' => true,
@@ -116,7 +130,7 @@ class MatiereController extends Controller
             $matiere = Matiere::findOrFail($id);
 
             $matiere->update($request->validated());
-            $matiere = Matiere::with(['classe', 'teacher'])->findOrFail($matiere->id);
+            $matiere = Matiere::with(['classe', 'teacher', 'unite:id,name,code'])->findOrFail($matiere->id);
 
             return response()->json([
                 'success' => true,

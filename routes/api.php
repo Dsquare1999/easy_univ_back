@@ -12,6 +12,7 @@ use App\Http\Controllers\V1\Auth\VerifyEmailController;
 use App\Http\Controllers\V1\TagController;
 use App\Http\Controllers\V1\CycleController;
 use App\Http\Controllers\V1\FiliereController;
+use App\Http\Controllers\V1\UniteController;
 use App\Http\Controllers\V1\InvoiceController;
 use App\Http\Controllers\V1\ClasseController;
 use App\Http\Controllers\V1\MatiereController;
@@ -131,6 +132,14 @@ Route::prefix('/v1/filieres')->middleware('auth:sanctum', 'ability:' . EasyUnivT
     Route::post("/store", [FiliereController::class,"store"]);
     Route::match(['put', 'patch'], '/update/{id}',  [FiliereController::class,"update"]);
     Route::delete("/destroy/{id}",  [FiliereController::class,"destroy"]);
+});
+
+Route::prefix('/v1/unites')->middleware('auth:sanctum', 'ability:' . EasyUnivTokenAbility::ACCESS_API->value)->group(function(){
+    Route::get("/", [UniteController::class, "index"]);
+    Route::get("/show/{id}", [UniteController::class,"show"]);
+    Route::post("/store", [UniteController::class,"store"]);
+    Route::match(['put', 'patch'], '/update/{id}',  [UniteController::class,"update"]);
+    Route::delete("/destroy/{id}",  [UniteController::class,"destroy"]);
 });
 
 Route::prefix('/v1/invoices')->middleware('auth:sanctum', 'ability:' . EasyUnivTokenAbility::ACCESS_API->value)->group(function(){

@@ -41,9 +41,10 @@ class UpdateMatiereRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'         => 'sometimes|string|max:255',
-            'code' => 'sometimes|string|unique:matieres,code,' . $this->route('id'). '|max:50',
-            'teacher'      => [
+            'name'          => 'sometimes|string|max:255',
+            'code'          => 'sometimes|string|unique:matieres,code,' . $this->route('id'). '|max:50',
+            'unite'         => 'sometimes|uuid|exists:unites,id',
+            'teacher'       => [
                 'sometimes',
                 'exists:users,id',
                 function ($attribute, $value, $fail) {
@@ -53,10 +54,10 @@ class UpdateMatiereRequest extends FormRequest
                     }
                 }
             ],
-            'classe'       => 'sometimes|uuid|exists:classes,id',
-            'hours'        => 'sometimes|integer|min:1',
-            'coefficient'  => 'sometimes|integer|min:1',
-            'year_part'    => [
+            'classe'        => 'sometimes|uuid|exists:classes,id',
+            'hours'         => 'sometimes|integer|min:1',
+            'coefficient'   => 'sometimes|integer|min:1',
+            'year_part'     => [
                 'sometimes',
                 'integer',
                 function ($attribute, $value, $fail) {
@@ -86,6 +87,7 @@ class UpdateMatiereRequest extends FormRequest
             'name.max'             => 'Le nom de la matière ne doit pas dépasser 255 caractères.',
             'code.unique'          => 'Le code de la matière doit être unique.',
             'code.max'             => 'Le code ne doit pas dépasser 50 caractères.',
+            'unite.exists'       => 'L\'unité d\'enseignement sélectionnée n\'existe pas.',
             'teacher.exists'       => 'L\'enseignant sélectionné n\'existe pas.',
             'classe.exists'        => 'La classe sélectionnée n\'existe pas.',
             'hours.integer'        => 'Le nombre d\'heures doit être un entier.',

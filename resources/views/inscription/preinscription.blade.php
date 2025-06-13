@@ -103,7 +103,13 @@
                 <p><strong>Date de Préinscription :</strong> {{ $student->created_at }} </p>
             </div>
             <div class="student-profile">
-                <img src="{{ public_path('storage/'.$user->profile) }}" alt="Profile image">
+                @if(isset($user->profile) && !empty($user->profile))
+                    @if(file_exists(public_path('storage/' . $user->profile)))
+                        <img src="{{ public_path('storage/' . $user->profile) }}" style="width: 100px; height: auto;">
+                    @else
+                        <img src="{{ public_path('storage/user_placeholder.jpg') }}" style="width: 100px; height: auto;">
+                    @endif
+                @endif
             </div>
         </div>
         

@@ -78,7 +78,9 @@
                 <tr>
                     <td>{{ $note['name'] }}</td>
                     @foreach($matieres as $matiere)
-                        <td>{{ $note[$matiere->libelle] }}</td>
+                        <td>{{ 
+                            $note[$matiere->id] ?? '-' 
+                        }}</td>
                     @endforeach
                     <td>{{ $note['decision'] }}</td>
                 </tr>

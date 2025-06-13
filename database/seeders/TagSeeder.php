@@ -17,12 +17,12 @@ class TagSeeder extends Seeder
     {
         $faker = Faker::create();
 
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < 5; $i++) {
             Tag::create([
                 'id' => (string) Str::uuid(),
                 'name' => $faker->word,
                 'slug' => Str::slug($faker->word),
-                'fee' => $faker->randomFloat(2, 10, 100),
+                'fee' => $faker->randomFloat(2, 10000, 100000),
             ]);
         }
     }

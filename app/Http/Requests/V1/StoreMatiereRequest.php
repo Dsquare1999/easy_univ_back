@@ -8,6 +8,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use App\Models\User;
 use App\Models\Classe;
+use App\Models\Unite;
 
 class StoreMatiereRequest extends FormRequest
 {
@@ -42,6 +43,7 @@ class StoreMatiereRequest extends FormRequest
         return [
             'name'         => 'required|string|max:255',
             'code'         => 'required|string|unique:matieres,code|max:50',
+            'unite'        => 'required|uuid|exists:unites,id',
             'teacher'      => [
                 'sometimes',
                 'exists:users,id',
@@ -100,6 +102,7 @@ class StoreMatiereRequest extends FormRequest
         return [
             'name.required'        => 'Le nom de la matière est obligatoire.',
             'name.max'             => 'Le nom de la matière ne doit pas dépasser 255 caractères.',
+            'unite.required'        => 'L\'unité d\'enseignement de la matière est obligatoire.',
             'code.required'        => 'Le code de la matière est obligatoire.',
             'code.unique'          => 'Le code de la matière doit être unique.',
             'code.max'             => 'Le code ne doit pas dépasser 50 caractères.',

@@ -10,12 +10,13 @@ use App\Models\Releve;
 use App\Models\Program;
 use App\Models\Classe;
 use App\Models\User;
+use App\Models\Unite;
 use Illuminate\Support\Str;
 
 class Matiere extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'code', 'libelle', 'hours', 'classe', 'teacher', 'coefficient', 'year_part'];
+    protected $fillable = ['unite', 'name', 'code', 'libelle', 'hours', 'classe', 'teacher', 'coefficient', 'year_part'];
 
     public $incrementing = false; 
     protected $keyType = 'string';
@@ -46,5 +47,10 @@ class Matiere extends Model
     public function programs(): HasMany
     {
         return $this->hasMany(Program::class, 'matiere');
+    }
+
+    public function unite()
+    {
+        return $this->belongsTo(Unite::class, 'unite');
     }
 }

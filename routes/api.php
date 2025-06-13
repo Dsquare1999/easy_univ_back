@@ -9,6 +9,8 @@ use App\Http\Controllers\V1\Auth\PasswordResetLinkController;
 use App\Http\Controllers\V1\Auth\RegisteredUserController;
 use App\Http\Controllers\V1\Auth\VerifyEmailController;
 
+use App\Enums\EasyUnivTokenAbility;
+
 use App\Http\Controllers\V1\TagController;
 use App\Http\Controllers\V1\CycleController;
 use App\Http\Controllers\V1\FiliereController;
@@ -20,12 +22,6 @@ use App\Http\Controllers\V1\StudentController;
 use App\Http\Controllers\V1\ProgramController;
 use App\Http\Controllers\V1\ReleveController;
 
-
-enum EasyUnivTokenAbility: string
-{
-    case ISSUE_ACCESS_TOKEN = 'issue-access-token';
-    case ACCESS_API = 'access-api';
-}
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();

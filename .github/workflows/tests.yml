@@ -21,14 +21,14 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: easy_univ_test
+          MYSQL_DATABASE: easy_univ
         ports:
-          - 3306:3306
+          - 3307:3307
         options: >-
-          --health-cmd="mysqladmin ping"
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -u root --password=root"
           --health-interval=10s
           --health-timeout=5s
-          --health-retries=3
+          --health-retries=5
 
     strategy:
       fail-fast: true
@@ -52,7 +52,7 @@ jobs:
       - name: Copy environment file
         run: cp .env.example .env
 
-      - name: Update .env database settings
+      - name: Configure database credentials
         run: |
           echo "DB_CONNECTION=mysql" >> .env
           echo "DB_HOST=127.0.0.1" >> .env
@@ -61,8 +61,17 @@ jobs:
           echo "DB_USERNAME=root" >> .env
           echo "DB_PASSWORD=root" >> .env
 
-      - name: Generate app key
+      - name: Generate application key
         run: php artisan key:generate
+
+      - name: Wait for MySQL to be ready
+        run: |
+          echo "Waiting for MySQL to be ready..."
+          for i in {1..10}; do
+            nc -z 127.0.0.1 3307 && echo "MySQL is ready!" && break
+            echo "Still waiting..."
+            sleep 3
+          done
 
       - name: Run migrations
         run: php artisan migrate --force

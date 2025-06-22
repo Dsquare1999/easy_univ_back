@@ -5,6 +5,8 @@ namespace App\Http\Requests\V1;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Str;
+use App\Models\Cycle;
 
 class UpdateCycleRequest extends FormRequest
 {
@@ -79,7 +81,7 @@ class UpdateCycleRequest extends FormRequest
         $data = parent::validated($key, $default);
         $slug = Str::slug($data['name']);
 
-        if (Tag::where('slug', $slug)->where('id', '!=', $this->route('id'))->exists()) {
+        if (Cycle::where('slug', $slug)->where('id', '!=', $this->route('id'))->exists()) {
             throw ValidationException::withMessages([
                 'slug' => 'Le Cycle avec ce nom existe déjà.'
             ]);

@@ -25,13 +25,18 @@ class ClasseController extends Controller
 
             $user = Auth()->user();
             
+            $my_class_ids = Student::where('user', $user->id)->pluck('classe')->toArray();
             $filieres = Filiere::all();
             $cycles = Cycle::all();
-            $classes = Classe::with(['cycle', 'filiere', 'matieres.teacher', 'matieres.releves.student.user', 'matieres.programs.report', 'matieres.unite:id,name,code'])->get();
-            $my_classes = Student::where('user', $user->id)->get();
+            $classes = Classe::with(['matieres.teacher', 'matieres.releves.student.user', 'matieres.programs.report', 'matieres.unite:id,name,code'])->get();
             $teachers = User::where('type', 1)->get();
             $users = User::where('type', 0)->get();
             $unites = Unite::all();
+
+            $classes->transform(function ($classe) use ($my_class_ids) {
+                $classe->registered = in_array($classe->id, $my_class_ids);
+                return $classe;
+            });
 
             return response()->json([
                 'success' => true,
@@ -40,7 +45,6 @@ class ClasseController extends Controller
                 'filieres' => $filieres,
                 'cycles' => $cycles,
                 'unites' => $unites,
-                'my_classes' => $my_classes,
                 'teachers' => $teachers,
                 'users' => $users,
             ], 200);
@@ -92,8 +96,10 @@ class ClasseController extends Controller
     public function show($id)
     {
         try {
-            $classe = Classe::with(['cycle', 'filiere', 'matieres.teacher', 'matieres.releves.student.user', 'matieres.programs.report', 'matieres.unite:id,name,code'])->findOrFail($id);
+            $my_class_ids = Student::where('user', $user->id)->pluck('classe')->toArray();
+            $classe = Classe::with(['matieres.teacher', 'matieres.releves.student.user', 'matieres.programs.report', 'matieres.unite:id,name,code'])->findOrFail($id);
 
+            $classe->registered = in_array($classe->id, $my_class_ids);
 
             return response()->json([
                 'success' => true,

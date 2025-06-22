@@ -1,66 +1,72 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\V1;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use App\Models\Cycle;
 
 class UpdateClasseRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Handle a failed validation attempt.
-     */
     protected function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([
             'success' => false,
-            'message' => 'Invoice validation errors',
+            'message' => 'Classe validation errors',
             'errors'  => $validator->errors(),
         ], 422));
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     */
     public function rules(): array
     {
-
         $method = $this->method();
-        
-        if($method == 'PUT'){
-            return [
-                'filiere'        => 'required|exists:filieres,id',
-                'cycle'          => 'required|exists:cycles,id',
-                'year'              => 'required|numeric|min:1',
-            ];
-        }else{
-            return [
-                'filiere'        => 'sometimes|required|exists:filieres,id',
-                'cycle'          => 'sometimes|required|exists:cycles,id',
-                'year'              => 'sometimes|required|numeric|min:1',
-            ];
+
+        $rules = [
+            'filiere'        => ['required', 'exists:filieres,id'],
+            'cycle'          => ['required', 'exists:cycles,id'],
+            'year'           => [
+                'required',
+                'numeric',
+                'min:1',
+                function ($attribute, $value, $fail) {
+                    $cycle = Cycle::find($this->input('cycle'));
+                    if ($cycle && $value > $cycle->duration) {
+                        $fail("The year must be between 1 and {$cycle->duration}.");
+                    }
+                }
+            ],
+            'parts'          => ['required', 'in:SEM,TRI'],
+            'academic_year'  => ['required'],
+        ];
+
+        if ($method !== 'PUT') {
+            foreach ($rules as $key => &$rule) {
+                $rule = array_merge(['sometimes'], (array)$rule);
+            }
         }
+
+        return $rules;
     }
 
-    /**
-     * Custom error messages.
-     */
     public function messages(): array
     {
         return [
-            'filiere.required'       => 'Le champ filiere est requis.',
-            'cycle.required'         => 'Le champ filiere est requis.',
-            'filiere.exists'         => 'Le champ filiere est invalide.',
-            'cycle.exists'              => 'Le champ filiere est invalide.',
-            'number.unique'             => 'L\'année doit être un entier.',
+            'filiere.required'       => 'Le champ filière est requis.',
+            'filiere.exists'         => 'Le champ filière est invalide.',
+            'cycle.required'         => 'Le champ cycle est requis.',
+            'cycle.exists'           => 'Le champ cycle est invalide.',
+            'year.required'          => 'Le champ année est requis.',
+            'year.numeric'           => 'L\'année doit être un entier.',
+            'year.min'               => 'L\'année doit être au moins 1.',
+            'parts.required'         => 'Le champ parties est requis.',
+            'parts.in'               => 'Le champ parties doit être soit SEM, soit TRI.',
+            'academic_year.required' => 'Le champ année académique est requis.'
         ];
     }
-
 }

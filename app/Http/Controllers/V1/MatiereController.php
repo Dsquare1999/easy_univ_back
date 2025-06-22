@@ -20,7 +20,14 @@ class MatiereController extends Controller
     public function index()
     {
         try {
-            $matieres = Matiere::with(['classe', 'teacher', 'unite:id,name,code'])->get();
+            $query = Matiere::with(['classe', 'teacher', 'unite:id,name,code']);
+
+            if ($classeId = request()->query('classe')) {
+                $query->where('classe', $classeId);
+            }
+
+            $matieres = $query->get();
+
             $teachers = User::where('type', 1)->get();
             $unites = Unite::all();
 

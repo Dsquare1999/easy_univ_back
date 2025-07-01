@@ -66,7 +66,7 @@ class StoreTagRequest extends FormRequest
     public function validated($key = null, $default = null)
     {
         $data = parent::validated($key, $default);
-        $slug = Str::slug($data['name']);
+        $slug = \Illuminate\Support\Str::slug($data['name']);
 
         if (Tag::where('slug', $slug)->exists()) {
             throw ValidationException::withMessages([

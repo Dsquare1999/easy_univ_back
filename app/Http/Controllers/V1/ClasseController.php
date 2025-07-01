@@ -29,9 +29,7 @@ class ClasseController extends Controller
             $filieres = Filiere::all();
             $cycles = Cycle::all();
             $classes = Classe::with(['matieres.teacher', 'matieres.releves.student.user', 'matieres.programs.report', 'matieres.unite:id,name,code'])->get();
-            $teachers = User::where('type', 1)->get();
             $users = User::where('type', 0)->get();
-            $unites = Unite::all();
 
             $classes->transform(function ($classe) use ($my_class_ids) {
                 $classe->registered = in_array($classe->id, $my_class_ids);
@@ -44,8 +42,6 @@ class ClasseController extends Controller
                 'data'    => $classes,
                 'filieres' => $filieres,
                 'cycles' => $cycles,
-                'unites' => $unites,
-                'teachers' => $teachers,
                 'users' => $users,
             ], 200);
 

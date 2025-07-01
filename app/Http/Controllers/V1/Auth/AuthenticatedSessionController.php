@@ -33,7 +33,14 @@ class AuthenticatedSessionController extends Controller
     public function index()
     {
         try {
-            $users = User::paginate(8);
+            $query = User::query();
+
+            if ($type = request()->query('type')) {
+                $query->where('type', $type);
+            }
+
+            // $users = $query->paginate(8);
+            $users = $query->get();
 
             return response()->json([
                 'success' => true,

@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 class Student extends Model
 {
     use HasFactory;
-    protected $fillable = ['user', 'classe', 'tag', 'file', 'titre', 'statut'];
+    protected $fillable = ['user', 'classe', 'tag', 'file', 'card', 'titre', 'statut'];
 
     public $incrementing = false; 
     protected $keyType = 'string';

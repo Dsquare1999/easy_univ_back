@@ -2,49 +2,181 @@
 
 namespace App\Http\Controllers\V1;
 
-use Barryvdh\DomPDF\Facade\Pdf;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\Document;
 
+use App\Events\DocumentCreated;
+
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class FichePreInscriptionController extends Controller
 {
     /**
      * Handle the incoming request.
      */
-    public function __invoke($user, $student, $classe, $filiere, $cycle)
+    public function __invoke($user, $student, $classe, $filiere, $cycle, $tag = null)
     {
+        Log::info("Début génération PDF pour utilisateur: " . $user->id);
 
-        if (Storage::directoryMissing('inscriptions')){
-            Storage::makeDirectory('inscriptions');
-        }
-        $filename = 'preinscription_' .str_replace(' ', '_', strtolower($cycle->name)). '_' . str_replace(' ', '_', strtolower($filiere->name)). '_' . str_replace(' ', '_', strtolower($user->firstname.' '.$user->lastname)) . '.pdf';
-        $success = true;
-        $error = null;
-        $path = Storage::path('inscriptions') .DIRECTORY_SEPARATOR. $filename;
         try {
-            PDF::loadview('inscription.preinscription', [
+            // Préparation des répertoires
+            $this->ensureDirectoriesExist();
+            
+            // Génération des noms de fichiers
+            $fileInfo = $this->generateFilenames($user, $cycle, $filiere);
+
+            $inscriptionPath = $fileInfo['inscription_public_path'] . $fileInfo['inscription_filename'];
+            $cardPath = $fileInfo['card_public_path'] . $fileInfo['card_filename'];
+
+            Log::info("Chemins générés - Inscription: {$inscriptionPath} | Carte: {$cardPath}");
+
+            // Génération du QR Code
+            $qrCodePath = $this->generateQrCode($user->email, $fileInfo['qr_filename']);
+
+            // Préparation des données pour les vues
+            $viewData = [
                 'user' => $user,
                 'student' => $student,
                 'classe' => $classe,
                 'filiere' => $filiere,
-                'cycle' => $cycle
-            ])
-            ->save($path = Storage::path('inscriptions') .DIRECTORY_SEPARATOR. $filename);
-            
-        } catch (\Throwable $th) {
-            $success = false;
-            $filename = null;
-            $error = $th->getMessage();
-        }
-        
+                'cycle' => $cycle,
+                'tag' => $tag,
+                'qrCodeDataUri' => $qrCodePath
+            ];
 
-        return array(
-            'success' => $success,
-            'filename' => $filename,
-            'error' => $error,
-            'path' => $path,
-        );
+            // Génération des PDFs
+            $preInscriptionSuccess = $this->generatePreInscriptionPdf($viewData, $inscriptionPath);
+            $cardSuccess = $this->generateStudentCardPdf($viewData, $cardPath);
+
+            if (!$preInscriptionSuccess || !$cardSuccess) {
+                throw new \Exception("Échec de génération d'un ou plusieurs documents");
+            }
+            Log::info("Génération PDF terminée avec succès");
+
+            event(new DocumentCreated($student, $user, 'Fiche de pré-inscription', $inscriptionPath, 'pdf', auth()->id()));
+            event(new DocumentCreated($student, $user, 'Carte d\'étudiant', $cardPath, 'pdf', auth()->id()));
+
+            Log::info("Événements de création de document déclenchés pour l'étudiant: " . $user->firstname . ' ' . $user->lastname);
+            return [
+                'success' => true,
+                'filename' => $fileInfo['inscription_filename'],
+                'cardname' => $fileInfo['card_filename'],
+                'error' => null,
+                'path' => $fileInfo['inscription_public_path'], // Chemin public
+                'cardpath' => $fileInfo['card_public_path'],     // Chemin public
+            ]; 
+
+        } catch (\Throwable $th) {
+            Log::error("Échec de la génération de PDF pour l'utilisateur {$user->id}: " . $th->getMessage());
+            Log::error("Stack trace: " . $th->getTraceAsString());
+            
+            return [
+                'success' => false,
+                'filename' => null,
+                'cardname' => null,
+                'error' => "Erreur interne lors de la génération des documents. Détail : " . $th->getMessage(),
+                'path' => null,
+                'cardpath' => null,
+            ];
+        }
+    }
+
+    private function ensureDirectoriesExist(): void
+    {
+        $directories = ['inscriptions', 'cards', 'qrcodes'];
+        
+        foreach ($directories as $directory) {
+            if (Storage::directoryMissing($directory)) {
+                Storage::makeDirectory($directory);
+            }
+        }
+    }
+
+    private function generateFilenames($user, $cycle, $filiere): array
+    {
+        $safeUserName = Str::slug($user->firstname . ' ' . $user->lastname, '_');
+        $timestamp = now()->format('YmdHis');
+        
+        $baseFilename = "{$safeUserName}_{$timestamp}";
+        $userFullName = str_replace(' ', '_', strtolower($user->firstname.' '.$user->lastname));
+        $cycleName = str_replace(' ', '_', strtolower($cycle->name));
+        $filiereName = str_replace(' ', '_', strtolower($filiere->name));
+
+        $inscriptionFilename = "preinscription_{$cycleName}_{$filiereName}_{$userFullName}.pdf";
+        $cardFilename = "carte_d_etudiant_{$cycleName}_{$filiereName}_{$userFullName}.pdf";
+
+        Log::info("Fichiers paths: ". Storage::url('inscriptions/' . $inscriptionFilename) . ', ' . Storage::url('cards/' . $cardFilename));
+
+        return [
+            'inscription_filename' => $inscriptionFilename,
+            'card_filename' => $cardFilename,
+            'qr_filename' => "qrcode_{$baseFilename}.png",
+            'inscription_path' => Storage::path('inscriptions') . DIRECTORY_SEPARATOR,
+            'card_path' => Storage::path('cards') . DIRECTORY_SEPARATOR,
+            'inscription_public_path' => Storage::url('inscriptions/' . $inscriptionFilename),
+            'card_public_path' => Storage::url('cards/' . $cardFilename),
+        ];
+    }
+
+    private function generateQrCode(string $data, string $filename): ?string
+    {
+        try {
+            Log::info("Génération QR Code pour: " . $data);
+
+            $qrData = urlencode($data);
+            $apiUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={$qrData}";
+            $qrCodePngData = @file_get_contents($apiUrl);
+
+            if ($qrCodePngData === false) {
+                throw new \Exception("Impossible de contacter l'API du QR Code");
+            }
+
+            $qrCodeStoragePath = 'qrcodes/' . $filename;
+            Storage::disk('public')->put($qrCodeStoragePath, $qrCodePngData);
+            
+            $absolutePath = Storage::disk('public')->path($qrCodeStoragePath);
+            Log::info("QR Code généré avec succès: " . $absolutePath);
+            
+            return $absolutePath;
+
+        } catch (\Exception $e) {
+            Log::error("Erreur génération QR Code: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    private function generatePreInscriptionPdf(array $data, string $path): bool
+    {
+        try {
+            Log::info("Génération fiche pré-inscription...");
+            
+            PDF::loadview('inscription.preinscription', $data)->save($path);
+            
+            Log::info("Fiche pré-inscription générée avec succès");
+            return true;
+            
+        } catch (\Exception $e) {
+            Log::error("Erreur génération pré-inscription: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    private function generateStudentCardPdf(array $data, string $path): bool
+    {
+        try {
+            Log::info("Génération carte étudiant...");
+            
+            PDF::loadView('inscription.studentcard', $data)->save($path);
+            
+            Log::info("Carte étudiant générée avec succès");
+            return true;
+            
+        } catch (\Exception $e) {
+            Log::error("Erreur génération carte étudiant: " . $e->getMessage());
+            return false;
+        }
     }
 }

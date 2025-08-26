@@ -16,7 +16,17 @@ class ProgramController extends Controller
     public function index()
     {
         try {
-            $programs = Program::with(['teacher', 'report'])->get();
+            $programs = Program::query();
+
+            if ($matiereId = request()->query('matiere')) {
+                $programs->where('matiere', $matiereId);
+            }
+
+            if ($classeId = request()->query('classe')) {
+                $programs->where('classe', $classeId);
+            }
+
+            $programs = $programs->get();
 
             return response()->json([
                 'success' => true,
@@ -28,6 +38,26 @@ class ProgramController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve programs',
+                'errors'  => ['message' => $e->getMessage()],
+            ], 500);
+        }
+    }
+
+    public function thisWeekPrograms()
+    {
+        try {
+            $programs = Program::thisWeek()->get();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Programs for this week retrieved successfully',
+                'data'    => $programs
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve programs for this week',
                 'errors'  => ['message' => $e->getMessage()],
             ], 500);
         }

@@ -21,6 +21,8 @@ use App\Http\Controllers\V1\MatiereController;
 use App\Http\Controllers\V1\StudentController;
 use App\Http\Controllers\V1\ProgramController;
 use App\Http\Controllers\V1\ReleveController;
+use App\Http\Controllers\V1\NotifController;
+use App\Http\Controllers\V1\DocumentController;
 
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
@@ -56,6 +58,8 @@ Route::prefix('/v1/users')->middleware('auth:sanctum', 'ability:' . EasyUnivToke
     Route::get("/", [AuthenticatedSessionController::class, "index"]);
     Route::post("/turnProfessor", [AuthenticatedSessionController::class, "turnProfessor"]);
     Route::post("/turnStudent", [AuthenticatedSessionController::class, "turnStudent"]);
+    Route::get("/teachersByClasse/{classeId}", [AuthenticatedSessionController::class, "teachersByClasse"]);
+    Route::get("/studentsByClasse/{classeId}", [AuthenticatedSessionController::class, "studentsByClasse"]);
     Route::delete("/deleteUser/{id}", [AuthenticatedSessionController::class, "deleteUser"]);
 });
 
@@ -96,6 +100,7 @@ Route::prefix('/v1/matieres')->middleware('auth:sanctum', 'ability:' . EasyUnivT
  
 Route::prefix('/v1/programs')->middleware('auth:sanctum', 'ability:' . EasyUnivTokenAbility::ACCESS_API->value)->group(function(){
     Route::get("/", [ProgramController::class, "index"]);
+    Route::get("/this-week", [ProgramController::class, "thisWeekPrograms"]);
     Route::get("/show/{id}", [ProgramController::class,"show"]);
     Route::post("/store", [ProgramController::class,"store"]);
     Route::post("/report", [ProgramController::class,"report"]);
@@ -128,6 +133,22 @@ Route::prefix('/v1/filieres')->middleware('auth:sanctum', 'ability:' . EasyUnivT
     Route::post("/store", [FiliereController::class,"store"]);
     Route::match(['put', 'patch'], '/update/{id}',  [FiliereController::class,"update"]);
     Route::delete("/destroy/{id}",  [FiliereController::class,"destroy"]);
+});
+
+Route::prefix('/v1/documents')->middleware('auth:sanctum', 'ability:' . EasyUnivTokenAbility::ACCESS_API->value)->group(function(){
+    Route::get("/", [DocumentController::class, "index"]);
+    Route::get("/show/{id}", [DocumentController::class,"show"]);
+    Route::delete("/destroy/{id}",  [DocumentController::class,"destroy"]);
+});
+
+Route::prefix('/v1/notifs')->middleware('auth:sanctum', 'ability:' . EasyUnivTokenAbility::ACCESS_API->value)->group(function(){
+    Route::get("/", [NotifController::class, "index"]);
+    Route::patch("/markAsRead/{id}", [NotifController::class,"markAsRead"]);
+    Route::patch("/markAllAsRead", [NotifController::class,"markAllAsRead"]);
+    Route::get("/show/{id}", [NotifController::class,"show"]);
+    Route::post("/store", [NotifController::class,"store"]);
+    Route::match(['put', 'patch'], '/update/{id}',  [NotifController::class,"update"]);
+    Route::delete("/destroy/{id}",  [NotifController::class,"destroy"]);
 });
 
 Route::prefix('/v1/unites')->middleware('auth:sanctum', 'ability:' . EasyUnivTokenAbility::ACCESS_API->value)->group(function(){

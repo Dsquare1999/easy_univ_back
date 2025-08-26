@@ -18,6 +18,10 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->integer('type')->default(0);
             $table->string('phone')->nullable();
+            $table->string('matricule')->nullable();
+            $table->string('nationality')->nullable();
+            $table->date('birthdate')->nullable();
+            $table->string('birthplace')->nullable();
             $table->string('profile')->nullable();
             $table->string('cover')->nullable();
             $table->string('bio')->nullable();

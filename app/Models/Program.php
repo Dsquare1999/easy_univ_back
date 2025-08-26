@@ -36,6 +36,11 @@ class Program extends Model
         return $this->belongsTo(User::class, 'teacher');
     }
 
+    public function classe()
+    {
+        return $this->belongsTo(Classe::class, 'classe');
+    }
+
     public function report()
     {
         return $this->belongsTo(Program::class, 'report');
@@ -44,5 +49,13 @@ class Program extends Model
     public function matiere()
     {
         return $this->belongsTo(Matiere::class, 'matiere');
+    }
+
+    public function scopeThisWeek($query)
+    {
+        $startOfWeek = now()->startOfWeek(); // Lundi
+        $endOfWeek = now()->endOfWeek();     // Dimanche
+
+        return $query->whereBetween('day', [$startOfWeek, $endOfWeek]);
     }
 }

@@ -53,4 +53,5 @@ class Matiere extends Model
     {
         return $this->belongsTo(Unite::class, 'unite');
     }
+
 }

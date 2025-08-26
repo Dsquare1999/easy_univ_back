@@ -23,26 +23,20 @@ class ClasseController extends Controller
     {
         try {
 
-            $user = Auth()->user();
+            // $user = Auth()->user();
             
-            $my_class_ids = Student::where('user', $user->id)->pluck('classe')->toArray();
-            $filieres = Filiere::all();
-            $cycles = Cycle::all();
-            $classes = Classe::with(['matieres.teacher', 'matieres.releves.student.user', 'matieres.programs.report', 'matieres.unite:id,name,code'])->get();
-            $users = User::where('type', 0)->get();
+            // $my_class_ids = Student::where('user', $user->id)->pluck('classe')->toArray();
+            $classes = Classe::all();
 
-            $classes->transform(function ($classe) use ($my_class_ids) {
-                $classe->registered = in_array($classe->id, $my_class_ids);
-                return $classe;
-            });
+            // $classes->transform(function ($classe) use ($my_class_ids) {
+            //     $classe->registered = in_array($classe->id, $my_class_ids);
+            //     return $classe;
+            // });
 
             return response()->json([
                 'success' => true,
                 'message' => 'Classes retrieved successfully',
                 'data'    => $classes,
-                'filieres' => $filieres,
-                'cycles' => $cycles,
-                'users' => $users,
             ], 200);
 
         } catch (\Exception $e) {
@@ -69,7 +63,7 @@ class ClasseController extends Controller
     {
         try {
             $classe = Classe::create($request->validated());
-            $classe = Classe::with(['cycle', 'filiere', 'matieres.teacher', 'matieres.releves.student.user', 'matieres.programs.report'])->findOrFail($classe->id);
+            $classe = Classe::findOrFail($classe->id);
 
             return response()->json([
                 'success' => true,
@@ -92,8 +86,10 @@ class ClasseController extends Controller
     public function show($id)
     {
         try {
+            $user = Auth()->user();
+            
             $my_class_ids = Student::where('user', $user->id)->pluck('classe')->toArray();
-            $classe = Classe::with(['matieres.teacher', 'matieres.releves.student.user', 'matieres.programs.report', 'matieres.unite:id,name,code'])->findOrFail($id);
+            $classe = Classe::findOrFail($id);
 
             $classe->registered = in_array($classe->id, $my_class_ids);
 
@@ -134,10 +130,8 @@ class ClasseController extends Controller
     {
         try {
             $classe = Classe::findOrFail($id);
-
             $classe->update($request->validated());
-
-            $classe = Classe::with(['cycle', 'filiere', 'matieres.teacher', 'matieres.releves.student.user', 'matieres.programs.report'])->findOrFail($id);
+            $classe = Classe::findOrFail($id);
 
             return response()->json([
                 'success' => true,

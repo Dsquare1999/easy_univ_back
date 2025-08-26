@@ -21,6 +21,7 @@ class UserSeeder extends Seeder
             'firstname' => $faker->firstName,
             'lastname' => $faker->lastName,
             'email' => $faker->unique()->safeEmail,
+            'matricule' => $faker->unique()->numerify('MATRICULE-####'),
             'password' => Hash::make('password'),
             'type' => $faker->boolean
         ]);
@@ -29,6 +30,7 @@ class UserSeeder extends Seeder
             'firstname' => $faker->firstName,
             'lastname' => $faker->lastName,
             'email' => $faker->unique()->safeEmail,
+            'matricule' => $faker->unique()->numerify('MATRICULE-####'),
             'password' => Hash::make('password'),
             'type' => $faker->boolean
         ]);
@@ -37,6 +39,7 @@ class UserSeeder extends Seeder
             'firstname' => $faker->firstName,
             'lastname' => $faker->lastName,
             'email' => $faker->unique()->safeEmail,
+            'matricule' => $faker->unique()->numerify('MATRICULE-####'),
             'password' => Hash::make('password'),
             'type' => $faker->boolean
         ]);
@@ -45,6 +48,7 @@ class UserSeeder extends Seeder
             'firstname' => $faker->firstName,
             'lastname' => $faker->lastName,
             'email' => $faker->unique()->safeEmail,
+            'matricule' => $faker->unique()->numerify('MATRICULE-####'),
             'password' => Hash::make('password'),
             'type' => $faker->boolean
         ]);
@@ -53,6 +57,7 @@ class UserSeeder extends Seeder
             'firstname' => $faker->firstName,
             'lastname' => $faker->lastName,
             'email' => $faker->unique()->safeEmail,
+            'matricule' => $faker->unique()->numerify('MATRICULE-####'),
             'password' => Hash::make('password'),
             'type' => $faker->boolean
         ]);

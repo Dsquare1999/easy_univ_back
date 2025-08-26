@@ -2,17 +2,13 @@
 
 namespace App\Http\Controllers\V1;
 
-use App\Models\User;
-use App\Models\Classe;
-use App\Models\Matiere;
-use App\Models\Unite;
-use App\Models\Releve;
-
+use App\Models\Notif;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\V1\StoreMatiereRequest;
-use App\Http\Requests\V1\UpdateMatiereRequest;
+use App\Http\Requests\V1\StoreNotifRequest;
+use App\Http\Requests\V1\UpdateNotifRequest;
+use Illuminate\Http\Request;
 
-class MatiereController extends Controller
+class NotifController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -20,32 +16,34 @@ class MatiereController extends Controller
     public function index()
     {
         try {
-            $query = Matiere::with(['classe', 'teacher', 'unite:id,name,code']);
-
-            if ($classeId = request()->query('classe')) {
-                $query->where('classe', $classeId);
-            }
-
-            $matieres = $query->get();
-
-            $teachers = User::where('type', 1)->get();
-            $unites = Unite::all();
+            $notifs = Notif::all();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Matieres retrieved successfully',
-                'data'    => $matieres,
-                'teachers' => $teachers,
-                'unites' => $unites,	
+                'message' => 'Notifications retrieved successfully',
+                'data'    => $notifs,
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve matieres',
+                'message' => 'Failed to retrieve notifications',
                 'errors'  => ['message' => $e->getMessage()],
             ], 500);
         }
+    }
+
+    public function markAsRead($id)
+    {
+        $notif = Notif::findOrFail($id);
+        $notif->update(['is_read' => true]);
+        return response()->json(['message' => 'Notification marquée comme lue']);
+    }
+
+    public function markAllAsRead()
+    {
+        Notif::query()->update(['is_read' => true]);
+        return response()->json(['message' => 'Toutes les notifications ont été marquées comme lues']);
     }
 
     /**
@@ -59,31 +57,21 @@ class MatiereController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreMatiereRequest $request)
+    public function store(StoreNotifRequest $request)
     {
         try {
-            $matiere = Matiere::create($request->validated());
-            $matiere = Matiere::with(['classe', 'teacher', 'unite:id,name,code'])->findOrFail($matiere->id);
-
-            $classe     = Classe::findOrFail($matiere->classe);
-            foreach ($classe->students as $student) {
-                Releve::create([
-                    'student'   => $student->id,
-                    'matiere'   => $matiere->id,
-                    'classe'    => $classe->id,
-                ]);
-            }
+            $notif = Notif::create($request->validated());
 
             return response()->json([
                 'success' => true,
-                'message' => 'Matiere created successfully',
-                'data'    => $matiere,
+                'message' => 'Notification created successfully',
+                'data'    => $notif,
             ], 201);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create matiere',
+                'message' => 'Failed to create Notification',
                 'errors'  => ['message' => $e->getMessage()],
             ], 500);
         }
@@ -95,25 +83,25 @@ class MatiereController extends Controller
     public function show($id)
     {
         try {
-            $matiere = Matiere::findOrFail($id);
-            $matiere = Matiere::with(['classe.cycle', 'classe.filiere', 'teacher', 'unite:id,name,code'])->findOrFail($matiere->id);
+            $notif = Notif::findOrFail($id);
+
             return response()->json([
                 'success' => true,
-                'message' => 'Matiere retrieved successfully',
-                'data'    => $matiere,
+                'message' => 'Notification retrieved successfully',
+                'data'    => $notif,
             ], 200);
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Matiere not found',
+                'message' => 'Notification not found',
                 'errors'  => ['message' => $e->getMessage()],
             ], 404);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve matiere',
+                'message' => 'Failed to retrieve Notification',
                 'errors'  => ['message' => $e->getMessage()],
             ], 500);
         }
@@ -122,7 +110,7 @@ class MatiereController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Matiere $matiere)
+    public function edit(Notif $notif)
     {
         //
     }
@@ -130,31 +118,30 @@ class MatiereController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateMatiereRequest $request, $id)
+    public function update(UpdateNotifRequest $request, $id)
     {
         try {
-            $matiere = Matiere::findOrFail($id);
+            $notif = Notif::findOrFail($id);
 
-            $matiere->update($request->validated());
-            $matiere = Matiere::with(['classe', 'teacher', 'unite:id,name,code'])->findOrFail($matiere->id);
+            $notif->update($request->validated());
 
             return response()->json([
                 'success' => true,
-                'message' => 'Matiere updated successfully',
-                'data'    => $matiere,
+                'message' => 'Notification updated successfully',
+                'data'    => $notif,
             ], 200);
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Matiere not found',
+                'message' => 'Notification not found',
                 'errors'  => ['message' => $e->getMessage()],
             ], 404);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update matiere',
+                'message' => 'Failed to update Notification',
                 'errors'  => ['message' => $e->getMessage()],
             ], 500);
         }
@@ -166,26 +153,26 @@ class MatiereController extends Controller
     public function destroy($id)
     {
         try {
-            $matiere = Matiere::findOrFail($id);
+            $notif = Notif::findOrFail($id);
 
-            $matiere->delete();
+            $notif->delete();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Matiere deleted successfully',
+                'message' => 'Notification deleted successfully',
             ], 200);
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Matiere not found',
+                'message' => 'Notification not found',
                 'errors'  => ['message' => $e->getMessage()],
             ], 404);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete matiere',
+                'message' => 'Failed to delete Notification',
                 'errors'  => ['message' => $e->getMessage()],
             ], 500);
         }

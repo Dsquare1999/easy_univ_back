@@ -39,6 +39,11 @@ class Releve extends Model
         });
     }
 
+    public function classe()
+    {
+        return $this->belongsTo(Classe::class, 'classe');
+    }
+
     public function matiere()
     {
         return $this->belongsTo(Matiere::class, 'matiere');

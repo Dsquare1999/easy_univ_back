@@ -41,6 +41,7 @@ class UpdateProfileRequest extends FormRequest
         return [
             'firstname' => 'sometimes|string|max:255',
             'lastname' => 'sometimes|string|max:255',
+            'matricule' => 'sometimes|string|max:50|unique:users,matricule,' . $this->user()->id,
             'email' => 'sometimes|email|unique:users,email,' . $this->user()->id,
             'profile' => 'sometimes|file|image|max:2048',
             'phone' => 'sometimes|string',

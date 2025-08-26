@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Fiche de Pré-Inscription - Le Phénix</title>
+        <style>
+            :root {
+                --font-main: Arial, sans-serif;
+                --border-color: #000;
+                --section-title-bg: #e0e0e0;
+                --warning-color: #c00;
+            }
+
+            body {
+                font-family: var(--font-main);
+                background-color: #dcdcdc;
+                font-size: 10pt;
+                color: #000;
+            }
+
+            /** 📄 Le conteneur de page. On prépare le terrain pour le filigrane. */
+            .page-container {
+                background: white;
+                width: 210mm;
+                min-height: 297mm;
+                margin: 2rem auto;
+                padding: 15mm;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+                position: relative; /* Indispensable pour le z-index du filigrane */
+                overflow: hidden; /* Pour que le filigrane ne dépasse pas */
+            }
+
+            /** 🔥 Le filigrane. Un pseudo-élément pour la pureté du code. */
+            .page-container::before {
+                content: "";
+                background-image: url("https://i.imgur.com/2Y00g84.png"); /* Le logo IFRI en fond */
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: 400px;
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                opacity: 0.1; /* La clé est l'opacité */
+                z-index: 0; /* On le place derrière tout le contenu */
+            }
+
+            /* On s'assure que tout le contenu est bien au-dessus du filigrane. */
+            .page-header,
+            #identity-section,
+            #inscription-section,
+            .warning-text,
+            #procedures-section,
+            .page-footer {
+                position: relative;
+                z-index: 1;
+            }
+
+            /** 🔱 En-tête */
+            .page-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 1rem;
+            }
+            .page-header h1 {
+                font-size: 1.2em;
+                margin: 0;
+            }
+            .page-header h2 {
+                font-size: 1.5em;
+                font-family: "Arial Black", sans-serif;
+                margin: 5px 0;
+            }
+            .page-header p {
+                font-size: 0.8em;
+                margin: 0;
+            }
+            .logo-ifri {
+                width: 120px;
+            }
+
+            /** 🆔 Section Identité */
+            #identity-section {
+                display: flex;
+                gap: 20px;
+            }
+            .photo-container {
+                width: 110px;
+                flex-shrink: 0;
+            }
+            .student-photo {
+                width: 110px;
+                height: 120px;
+                border: 1px solid var(--border-color);
+                object-fit: cover;
+            }
+            .info-container {
+                flex-grow: 1;
+            }
+
+            /* ✍️ Style des "champs de formulaire" */
+            .form-group {
+                display: flex;
+                align-items: center;
+                margin-bottom: 6px;
+            }
+            .form-group label {
+                display: block;
+                width: 100px;
+                flex-shrink: 0;
+                border: 1px solid var(--border-color);
+                padding: 4px;
+                margin-right: -1px; /* Pour fusionner les bordures */
+                font-size: 0.9em;
+                text-align: center;
+            }
+            .value-box {
+                flex-grow: 1;
+                border: 1px solid var(--border-color);
+                padding: 4px 8px;
+                font-weight: bold;
+            }
+
+            /* Champs spécifiques */
+            .large-field {
+                justify-content: flex-end;
+            }
+            .large-field span {
+                width: 100%;
+                border: 1px solid var(--border-color);
+                padding: 4px 8px;
+                font-weight: bold;
+            }
+            .academia-year {
+                justify-content: flex-end;
+                margin-bottom: 1rem;
+            }
+            .academia-year label {
+                border: none;
+                width: auto;
+                font-weight: bold;
+            }
+            .academia-year span {
+                border: 1px solid var(--border-color);
+                padding: 2px 20px;
+                font-weight: bold;
+            }
+
+            .section-title {
+                text-align: center;
+                font-size: 1.1em;
+                font-family: "Arial Black", sans-serif;
+                border: 2px solid var(--border-color);
+                background: var(--section-title-bg);
+                padding: 3px;
+                margin: 0 0 10px 0;
+            }
+
+            /* Groupe de champs complexe (Né le...) */
+            .multi-field .date-field {
+                flex-grow: 0;
+                width: 120px;
+            }
+            .multi-field .inline-label {
+                width: auto;
+                border: none;
+                margin: 0 10px;
+                font-weight: normal;
+            }
+            .multi-field .location-field {
+                flex-grow: 1;
+            }
+
+            /** ✍️ Grille d'inscription */
+            #inscription-section {
+                margin-top: 1rem;
+            }
+            .inscription-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0px; /* Les bordures fusionneront */
+            }
+            /* On ajuste les labels/valeurs pour la grille */
+            .inscription-grid .form-group {
+                flex-direction: column;
+                align-items: stretch;
+                margin-bottom: 0;
+            }
+            .inscription-grid .form-group label {
+                width: auto;
+                margin-right: 0;
+            }
+            .inscription-grid .form-group .value-box {
+                text-align: center;
+            }
+
+            /** ⚠️ Texte d'avertissement */
+            .warning-text {
+                color: var(--warning-color);
+                font-size: 0.9em;
+                font-weight: bold;
+                text-align: center;
+                margin: 1.5rem 0;
+            }
+
+            /** 📋 Procédures */
+            #procedures-section {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+                border: 2px solid var(--border-color);
+                padding: 10px;
+            }
+            .column-title {
+                text-align: center;
+                font-weight: bold;
+                text-decoration: underline;
+                margin: 0 0 10px 0;
+            }
+            #procedures-section ol,
+            #procedures-section ul {
+                padding-left: 20px;
+                margin: 0;
+                font-size: 0.85em;
+                line-height: 1.5;
+            }
+
+            /** 📚 Pied de page */
+            .page-footer {
+                margin-top: 1.5rem;
+            }
+            .library-info {
+                border: 2px solid var(--border-color);
+                padding: 10px;
+            }
+            .final-note {
+                margin-top: 1rem;
+                font-size: 0.9em;
+            }
+        </style>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Arial&family=Arial+Black&display=swap"
+            rel="stylesheet"
+        />
+    </head>
+    <body>
+        <!-- 📄 Le conteneur principal. Il portera le filigrane en arrière-plan. -->
+        <div class="page-container">
+            <!-- 🔱 En-tête du document -->
+            <header class="page-header">
+                <div class="header-left">
+                    <h1>EPUMA Le Phénix</h1>
+                    <h2>Fiche de Pré-Inscription</h2>
+                    <p>
+                        Compte Ecobank Inscription N° 321106970703 | Compte UBA
+                        N° 506100001485
+                    </p>
+                </div>
+                <div class="header-right">
+                    <!-- TODO: Remplacer par une vraie image avec Blade -->
+                    <img
+                        src="{{ public_path('storage/logo-epuma.png') }}"
+                        alt="Logo EPUMA"
+                        class="logo-ifri"
+                    />
+                </div>
+            </header>
+
+            <!-- 🆔 Section Identité. Flexbox pour aligner la photo et les infos. -->
+            <section id="identity-section">
+                <div class="photo-container">
+                    <!-- TODO: Remplacer par la photo de l'étudiant -->
+                    <img
+                        src="https://i.imgur.com/sT4f4gG.png"
+                        alt="Photo de l'étudiant"
+                        class="student-photo"
+                    />
+                    @if(isset($user->profile) && !empty($user->profile))
+                    @if(file_exists(public_path('storage/' . $user->profile)))
+                    <img
+                        src="{{ public_path('storage/' . $user->profile) }}"
+                        alt="Photo de l'étudiant"
+                        style="width: 100px; height: auto"
+                        class="student-photo"
+                    />
+                    @else
+                    <img
+                        src="{{ public_path('storage/user_placeholder.jpg') }}"
+                        alt="Photo de l'étudiant"
+                        style="width: 100px; height: auto"
+                        class="student-photo"
+                    />
+                    @endif @endif
+                </div>
+                <div class="info-container">
+                    <div class="form-group large-field">
+                        <span>2#10459619#20#LPs3s4-SECINF</span>
+                    </div>
+                    <div class="form-group academia-year">
+                        <label>Année Académique :</label>
+                        <span>2025-2026</span>
+                    </div>
+
+                    <h3 class="section-title">IDENTITE</h3>
+
+                    <div class="form-group">
+                        <label>Identifiant :</label>
+                        <div class="value-box">hintekpob.ahohoue284</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Matricule :</label>
+                        <div class="value-box">10459619</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Nom :</label>
+                        <div class="value-box">{{ $user->lastname }}</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Prénoms :</label>
+                        <div class="value-box">{{ $user->firstname }}</div>
+                    </div>
+                    <!-- Groupe de champs complexe pour la naissance -->
+                    <div class="form-group multi-field">
+                        <label>Né le :</label>
+                        <div class="value-box date-field">04/05/2000</div>
+                        <label class="inline-label">A :</label>
+                        <div class="value-box location-field">Porto-Novo</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Nationalité :</label>
+                        <div class="value-box">Benin</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ✍️ Section Inscription -->
+            <section id="inscription-section">
+                <h3 class="section-title">Inscription</h3>
+                <div class="inscription-grid">
+                    <div class="form-group">
+                        <label>Cycle :</label>
+                        <div class="value-box">{{ $cycle->name }}</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Filière :</label>
+                        <div class="value-box">{{ $filiere->name }}</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Année :</label>
+                        <div class="value-box">{{ $classe->year }}</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Statut :</label>
+                        <div class="value-box">SPR</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Montant :</label>
+                        <div class="value-box">415000.0 FCFA</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Restant dû :</label>
+                        <div class="value-box">0.0 FCFA</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ⚠️ Avertissement important -->
+            <p class="warning-text">
+                <strong>Attention:</strong> Veuillez vérifier l'exactitude des
+                données présentes sur cette fiche avant tout paiement. Aucun
+                remboursement ni report ne sera possible après paiement.
+            </p>
+
+            <!-- 📋 Procédures et pièces à fournir. CSS Grid est parfait pour ces 2 colonnes. -->
+            <section id="procedures-section">
+                <div class="column">
+                    <h4 class="column-title">
+                        Les étapes de la procédures d'inscription
+                    </h4>
+                    <ol>
+                        <li>
+                            Obtention de l'autorisation d'inscription dans les
+                            entités de formation professionnelle/accès libre
+                            dans les facultés classiques.
+                        </li>
+                        <li>
+                            Retrait de la Fiche de préinscription sur internet
+                            ou dans les cybers indiqués.
+                        </li>
+                        <li>
+                            Prise de photo numérique pour les nouveaux
+                            apprenants.
+                        </li>
+                        <li>
+                            Versement à la banque des droits d'inscription dans
+                            le compte
+                        </li>
+                        <li>
+                            Validation du dossier d'inscription et retrait de la
+                            carte d'étudiant après paiement des frais
+                            d'inscription et de formation.
+                        </li>
+                    </ol>
+                </div>
+                <div class="column">
+                    <h4 class="column-title">
+                        Pièces à fournir pour s'inscrire à l'UAC
+                    </h4>
+                    <ul>
+                        <li>Fiche de préinscription + sa photocopie.</li>
+                        <li>
+                            Copie du relevé du BAC obtenu au Bénin (les nouveaux
+                            étudiants).
+                        </li>
+                        <li>
+                            Photocopie de la carte d'identité nationale ou du
+                            passeport.
+                        </li>
+                        <li>
+                            Copie légalisée de l'acte de naissance (1ère
+                            inscription dans une Faculté, une Ecole, en Master,
+                            ou Doctorat)
+                        </li>
+                        <li>
+                            Originale + une photocopie de la quittance de
+                            paiement à la banque pour ceux qui doivent payer les
+                            frais d'inscription, de formation ...etc.
+                        </li>
+                        <li>
+                            L'ancienne carte d'étudiant + sa photocopie (les
+                            anciens étudiants).
+                        </li>
+                        <li>
+                            Certificat de nationalité (1ère inscription des
+                            étrangers).
+                        </li>
+                        <li>
+                            Copie légalisée du diplôme obtenu hors du Bénin +
+                            l'attestation de dépôt pour l'authentification de
+                            diplôme (les nouveaux étudiants) ou l'authenticité
+                            du diplôme obtenu hors du Bénin (les anciens
+                            étudiants).
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- 📚 Pied de page -->
+            <footer class="page-footer">
+                <div class="library-info">
+                    <h4 class="column-title">Bibliothèque Universitaire</h4>
+                    <p>
+                        La Bibliothèque de l'Ecole Polytechnique Universitaire
+                        des Métiers d'Avenir invite tout étudiant inscrit à
+                        découvrir son fonds documentaire riche et diversifié.
+                        Visitez www.epuma.lephenix.bj.
+                    </p>
+                </div>
+                <p class="final-note">
+                    <strong>NB:</strong> La validation de votre inscription est
+                    obligatoire, sans quoi, votre préinscription est nulle et
+                    non avenue.
+                </p>
+            </footer>
+        </div>
+    </body>
+</html>

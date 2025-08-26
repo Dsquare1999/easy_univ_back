@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Application Name
@@ -122,5 +121,26 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | QR Code Generation
+    |--------------------------------------------------------------------------
+    |
+    | Here you may configure the settings for QR code generation. You can
+    | choose the backend to be used for generating QR codes. The "gd" backend
+    | is recommended as it is widely supported and does not require
+    | additional installations.
+    |
+    | Supported backends: "gd", "imagick"
+    |
+    */
+
+    'qr' => [
+        'enabled' => true,
+        'backend' => env('QR_BACKEND', 'gd'),
+    ],
+
+    // Vérifiez que 'gd' est disponible dans vos extensions PHP
 
 ];

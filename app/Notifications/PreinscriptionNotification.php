@@ -52,6 +52,10 @@ class PreinscriptionNotification extends Notification
                     ->attach(Storage::path('inscriptions') .DIRECTORY_SEPARATOR. $this->student->file, [
                         'as' => 'Fiche de préinscription.pdf',
                         'mime' => 'application/pdf',
+                    ])
+                    ->attach(Storage::path('cards') .DIRECTORY_SEPARATOR. $this->student->card, [
+                        'as' => 'Carte d\'étudiant.pdf',
+                        'mime' => 'application/pdf',
                     ]);
     }
 

@@ -21,6 +21,9 @@ use App\Http\Requests\V1\StoreStudentRequest;
 use App\Http\Requests\V1\ValidateStudentRequest;
 use App\Http\Requests\V1\RefuseStudentRequest;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log; 
 
 class StudentController extends Controller
 {
@@ -128,14 +131,15 @@ class StudentController extends Controller
 
             $student= Student::findOrFail($student_id);
             $fichePreInscriptionController = new FichePreInscriptionController();
-            $pdfresponse = $fichePreInscriptionController($user, $student, $classe, $filiere, $cycle); 
+            $pdfresponse = $fichePreInscriptionController($user, $student, $classe, $filiere, $cycle, $tag); 
 
             if (!$pdfresponse['success']) {
                 throw new \Exception('Failed to generate PDF: ' . ($pdfresponse['error'] ?? 'Unknown error'));
             }
 
             $student->update([
-                'file' => $pdfresponse['filename']
+                'file' => $pdfresponse['filename'],
+                'card' => $pdfresponse['cardname'],
             ]);
 
             $notificationPreinscription = new PreinscriptionNotification($student, $classe, $cycle, $filiere);

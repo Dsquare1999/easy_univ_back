@@ -57,6 +57,60 @@ class AuthenticatedSessionController extends Controller
         }
     }
 
+    public function teachersByClasse($classeId)
+    {
+        try {
+            $teachers = User::whereHas('matieres', function ($query) use ($classeId) {
+                $query->where('classe', $classeId);
+            })
+            ->where('type', 1)
+            ->with(['matieres' => function ($query) use ($classeId) {
+                $query->where('classe', $classeId);
+            }])
+            ->get();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Teachers retrieved successfully',
+                'data'    => $teachers,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve teachers',
+                'errors'  => ['message' => $e->getMessage()],
+            ], 500);
+        }
+    }
+
+    public function studentsByClasse($classeId)
+    {
+        try {
+            $students = User::whereHas('student', function ($query) use ($classeId) {
+                $query->where('classe', $classeId);
+            })
+            ->where('type', 0)
+            ->with(['student' => function ($query) use ($classeId) {
+                $query->where('classe', $classeId);
+            }])
+            ->get();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Students retrieved successfully',
+                'data'    => $students,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve students',
+                'errors'  => ['message' => $e->getMessage()],
+            ], 500);
+        }
+    }
+
     /**
      * Handle an incoming authentication request.
      */
@@ -121,6 +175,10 @@ class AuthenticatedSessionController extends Controller
             $user->email = $request->input('email', $user->email);
             $user->bio = $request->input('bio', $user->bio);
             $user->phone = $request->input('phone', $user->phone);
+            $user->matricule = $request->input('matricule', $user->matricule);
+            $user->nationality = $request->input('nationality', $user->nationality);
+            $user->birthplace = $request->input('birthplace', $user->birthplace);
+            $user->birthdate = $request->input('birthdate', $user->birthdate);
 
             if ($request->hasFile('profile')) {
                 if ($user->profile) {

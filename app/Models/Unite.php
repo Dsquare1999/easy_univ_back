@@ -39,6 +39,6 @@ class Unite extends Model
 
     public function matieres()
     {
-        return $this->hasMany(Matiere::class, 'unites');
+        return $this->hasMany(Matiere::class, 'unite'); // Changé de 'unites' à 'unite'
     }
 }

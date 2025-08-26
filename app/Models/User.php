@@ -26,6 +26,16 @@ class User extends Authenticatable
     {
         return $this->hasMany(Invoice::class);
     }
+    
+    public function matieres()
+    {
+        return $this->hasMany(Matiere::class, 'teacher');
+    }
+
+    public function student()
+    {
+        return $this->hasOne(Student::class, 'user');
+    }
 
     public $incrementing = false;  
     protected $keyType = 'string';
@@ -47,6 +57,10 @@ class User extends Authenticatable
         'firstname',
         'lastname',
         'email',
+        'matricule',
+        'nationality',
+        'birthdate',
+        'birthplace',
         'password',
         'type',
         'phone',

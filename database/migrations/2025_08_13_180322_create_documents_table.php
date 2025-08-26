@@ -11,21 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('students', function (Blueprint $table) {
+        Schema::create('documents', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('user');
-            $table->uuid('classe');
+            $table->uuid('classe'); 
+            $table->uuid('student')->nullable();
             $table->uuid('tag')->nullable();
-            $table->enum('titre', ['BRS', 'ATP', 'SPR'])->default('ATP');
-            #status not statut
-            $table->enum('statut', ['EN ATTENTE', 'PRE-INSCRIT', 'REFUSE', 'INSCRIT'])->default('EN ATTENTE');
-            $table->string('file')->nullable();
-            $table->string('card')->nullable();
+            $table->string('name')->nullable(); // Name of the document
+            $table->string('path')->nullable();
+            $table->string('type')->nullable(); // e.g., 'pdf', 'docx',
 
-            $table->foreign('user')->references('id')->on('users')->constrained()->onDelete('cascade');
             $table->foreign('classe')->references('id')->on('classes')->onDelete('cascade');
+            $table->foreign('student')->references('id')->on('students')->onDelete('set null');
             $table->foreign('tag')->references('id')->on('tags')->onDelete('set null');
-
             $table->timestamps();
         });
     }
@@ -35,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('classe_user');
+        Schema::dropIfExists('documents');
     }
 };

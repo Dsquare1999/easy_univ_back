@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [env('FRONTEND_URL', 'https://easy-univ.vercel.app')],
+    'allowed_origins' => [env('FRONTEND_URL', 'https://easyuniv.lephenix.bj')],
     // 'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:3000')],
 
     'allowed_origins_patterns' => [],

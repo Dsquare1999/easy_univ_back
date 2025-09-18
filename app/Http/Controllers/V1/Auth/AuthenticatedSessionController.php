@@ -118,11 +118,11 @@ class AuthenticatedSessionController extends Controller
     {
         $response = [
             'success'       => false,
-            'message'       => 'Registration Failed',
+            'message'       => 'Authentication Failed',
             'data'          => [],
             'errors'        => []
         ];
-        $responseCode = 500;
+        $responseCode = 401;
 
         try {
             $request->authenticate();
@@ -150,8 +150,6 @@ class AuthenticatedSessionController extends Controller
             ];
             return response()->json($response, $responseCode); 
         }
-
-        
     }
 
     /**

@@ -86,7 +86,7 @@ class StoreMatiereRequest extends FormRequest
             ->count();
             $libelle = 2 * $matieres_this_part_count + $validated['year_part'];
             $libelle_formatted = str_pad($libelle, 2, '0', STR_PAD_LEFT);
-            $validated['libelle'] = $validated['code'] . ' ' . $classe->year . $libelle_formatted;
+            $validated['libelle'] = '2' . $classe->year . $libelle_formatted;
         }
 
         return $validated;

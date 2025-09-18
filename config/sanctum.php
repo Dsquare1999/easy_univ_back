@@ -93,7 +93,7 @@ return [
     | the tokens should be allowed to expire.
     |
     */
-    'ac_expiration' => 60,            
+    'ac_expiration' => 120,            
     'rt_expiration' => 7 * 24 * 60, 
 
 ];

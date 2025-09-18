@@ -24,12 +24,17 @@ class FichePreInscriptionController extends Controller
         try {
             // Préparation des répertoires
             $this->ensureDirectoriesExist();
+            Log::info("Directories vérifiés/créés");
             
             // Génération des noms de fichiers
             $fileInfo = $this->generateFilenames($user, $cycle, $filiere);
+            Log::info("Noms de fichiers générés");
 
-            $inscriptionPath = $fileInfo['inscription_public_path'] . $fileInfo['inscription_filename'];
-            $cardPath = $fileInfo['card_public_path'] . $fileInfo['card_filename'];
+            // $inscriptionPath = $fileInfo['inscription_public_path'] . $fileInfo['inscription_filename'];
+            $inscriptionPath = $fileInfo['inscription_public_path'];
+            Log::info("Inscription path: " . $inscriptionPath);
+            $cardPath = $fileInfo['card_public_path'];
+            Log::info("Card path: " . $cardPath);
 
             Log::info("Chemins générés - Inscription: {$inscriptionPath} | Carte: {$cardPath}");
 
@@ -47,9 +52,10 @@ class FichePreInscriptionController extends Controller
                 'qrCodeDataUri' => $qrCodePath
             ];
 
-            // Génération des PDFs
-            $preInscriptionSuccess = $this->generatePreInscriptionPdf($viewData, $inscriptionPath);
-            $cardSuccess = $this->generateStudentCardPdf($viewData, $cardPath);
+            Log::info("Données préparées pour les vues");
+            $preInscriptionSuccess = $this->generatePreInscriptionPdf($viewData, $fileInfo['inscription_path']);
+            $cardSuccess = $this->generateStudentCardPdf($viewData, $fileInfo['card_path']);
+
 
             if (!$preInscriptionSuccess || !$cardSuccess) {
                 throw new \Exception("Échec de génération d'un ou plusieurs documents");
@@ -108,16 +114,26 @@ class FichePreInscriptionController extends Controller
         $inscriptionFilename = "preinscription_{$cycleName}_{$filiereName}_{$userFullName}.pdf";
         $cardFilename = "carte_d_etudiant_{$cycleName}_{$filiereName}_{$userFullName}.pdf";
 
-        Log::info("Fichiers paths: ". Storage::url('inscriptions/' . $inscriptionFilename) . ', ' . Storage::url('cards/' . $cardFilename));
+        // Chemins physiques pour la sauvegarde des fichiers
+        $inscriptionPath = Storage::disk('public')->path('inscriptions/' . $inscriptionFilename);
+        $cardPath = Storage::disk('public')->path('cards/' . $cardFilename);
+
+        // URLs publiques pour l'accès via le frontend
+        $inscriptionUrl = Storage::disk('public')->url('inscriptions/' . $inscriptionFilename);
+        $cardUrl = Storage::disk('public')->url('cards/' . $cardFilename);
+
+        Log::info("Fichiers paths: {$inscriptionUrl}, {$cardUrl}");
 
         return [
             'inscription_filename' => $inscriptionFilename,
             'card_filename' => $cardFilename,
             'qr_filename' => "qrcode_{$baseFilename}.png",
-            'inscription_path' => Storage::path('inscriptions') . DIRECTORY_SEPARATOR,
-            'card_path' => Storage::path('cards') . DIRECTORY_SEPARATOR,
-            'inscription_public_path' => Storage::url('inscriptions/' . $inscriptionFilename),
-            'card_public_path' => Storage::url('cards/' . $cardFilename),
+            // Chemins physiques pour la sauvegarde
+            'inscription_path' => $inscriptionPath,
+            'card_path' => $cardPath,
+            // URLs pour l'accès frontend
+            'inscription_public_path' => $inscriptionUrl,
+            'card_public_path' => $cardUrl,
         ];
     }
 
@@ -152,11 +168,12 @@ class FichePreInscriptionController extends Controller
     {
         try {
             Log::info("Génération fiche pré-inscription...");
-            
+            Log::info("Data: " . json_encode($data));
+            Log::info("Path: " . json_encode($path));
             PDF::loadview('inscription.preinscription', $data)->save($path);
             
             Log::info("Fiche pré-inscription générée avec succès");
-            return true;
+            return true; 
             
         } catch (\Exception $e) {
             Log::error("Erreur génération pré-inscription: " . $e->getMessage());

@@ -13,6 +13,7 @@ use App\Enums\EasyUnivTokenAbility;
 
 use App\Http\Controllers\V1\TagController;
 use App\Http\Controllers\V1\CycleController;
+use App\Http\Controllers\V1\UserController;
 use App\Http\Controllers\V1\FiliereController;
 use App\Http\Controllers\V1\UniteController;
 use App\Http\Controllers\V1\InvoiceController;
@@ -28,6 +29,9 @@ use App\Http\Controllers\V1\DocumentController;
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
+// Route::middleware('auth:sanctum')->get('/auth/check-token', function (Request $request) {
+//     return response()->json(['status' => 'valid']);
+// });
 Route::prefix('/v1/auth')->middleware('auth:sanctum', 'ability:' . EasyUnivTokenAbility::ISSUE_ACCESS_TOKEN->value)->group(function () {
     Route::get('/refresh-token', [AuthenticatedSessionController::class, 'refreshToken']);
 });
@@ -56,6 +60,7 @@ Route::prefix('/v1')->middleware(['auth'])->group(function(){
 
 Route::prefix('/v1/users')->middleware('auth:sanctum', 'ability:' . EasyUnivTokenAbility::ACCESS_API->value)->group(function(){
     Route::get("/", [AuthenticatedSessionController::class, "index"]);
+    Route::post("/store", [UserController::class,"store"]);
     Route::post("/turnProfessor", [AuthenticatedSessionController::class, "turnProfessor"]);
     Route::post("/turnStudent", [AuthenticatedSessionController::class, "turnStudent"]);
     Route::get("/teachersByClasse/{classeId}", [AuthenticatedSessionController::class, "teachersByClasse"]);

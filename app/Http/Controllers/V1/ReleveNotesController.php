@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ReleveNotesController extends Controller
 {
@@ -25,7 +26,12 @@ class ReleveNotesController extends Controller
         if (Storage::directoryMissing('bulletins')){
             Storage::makeDirectory('bulletins');
         }
-        $filename = 'releve_' . str_replace(' ', '_', strtolower($cycle->name)) . '_' . str_replace(' ', '_', strtolower($filiere->name)) . '_' . str_replace(' ', '_', strtolower($classe->name)). '_semester_' . $year_part . '_' . now()->format('YmdHis') . '.pdf';
+
+        $cycleName   = Str::slug($cycle->name, '_');
+        $filiereName = Str::slug($filiere->name, '_');
+        $classeName  = Str::slug($classe->name, '_');
+        
+        $filename = 'releve_' . $cycleName . '_' . $filiereName . '_' . $classeName . '_semester_' . $year_part . '_' . now()->format('YmdHis') . '.pdf';
         $success = true;
         $filepath = Storage::disk('public')->path('releves/' . $filename);
         try {
@@ -49,10 +55,10 @@ class ReleveNotesController extends Controller
             Log::info("Génération des bulletins pour le cycle: {$cycle->name}, filière: {$filiere->name}, classe: {$classe->name}");
             foreach ($notes as $note) {
                 Log::info("Génération du bulletin. Unites : " . $unites);
-                $bulletinName = 'bulletin_' . str_replace(' ', '_', strtolower($note['name'])) . '_' . str_replace(' ', '_', strtolower($cycle->name)) . '_' . str_replace(' ', '_', strtolower($filiere->name)) . '_' . str_replace(' ', '_', strtolower($classe->name)). '_semester_' . $year_part . '.pdf';
-                $bulletinPath = Storage::disk('public')->path('bulletins/' . $bulletinName);
-
-                $relativePath = 'bulletins/' . $bulletinName;
+                $studentName = Str::slug($note['name'], '_');
+                $bulletinName = "bulletin_{$studentName}_{$cycleName}_{$filiereName}_{$classeName}_semester_{$year_part}.pdf";
+                $bulletinPath = Storage::disk('public')->path("bulletins/{$bulletinName}");
+                $relativePath = "bulletins/{$bulletinName}";
                 $disk = Storage::disk('public');
 
                 if ($disk->exists($relativePath)) {

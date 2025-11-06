@@ -32,9 +32,7 @@ class FichePreInscriptionController extends Controller
 
             // $inscriptionPath = $fileInfo['inscription_public_path'] . $fileInfo['inscription_filename'];
             $inscriptionPath = $fileInfo['inscription_public_path'];
-            Log::info("Inscription path: " . $inscriptionPath);
             $cardPath = $fileInfo['card_public_path'];
-            Log::info("Card path: " . $cardPath);
 
             Log::info("Chemins générés - Inscription: {$inscriptionPath} | Carte: {$cardPath}");
 
@@ -107,9 +105,12 @@ class FichePreInscriptionController extends Controller
         $timestamp = now()->format('YmdHis');
         
         $baseFilename = "{$safeUserName}_{$timestamp}";
-        $userFullName = str_replace(' ', '_', strtolower($user->firstname.' '.$user->lastname));
-        $cycleName = str_replace(' ', '_', strtolower($cycle->name));
-        $filiereName = str_replace(' ', '_', strtolower($filiere->name));
+        // $userFullName = str_replace(' ', '_', strtolower($user->firstname.' '.$user->lastname));
+        // $cycleName = str_replace(' ', '_', strtolower($cycle->name));
+        // $filiereName = str_replace(' ', '_', strtolower($filiere->name));
+        $cycleName = Str::slug(Str::ascii($cycle->name), '_');
+        $filiereName = Str::slug(Str::ascii($filiere->name), '_');
+        $userFullName = Str::slug(Str::ascii($user->firstname.' '.$user->lastname), '_');
 
         $inscriptionFilename = "preinscription_{$cycleName}_{$filiereName}_{$userFullName}.pdf";
         $cardFilename = "carte_d_etudiant_{$cycleName}_{$filiereName}_{$userFullName}.pdf";
@@ -167,9 +168,6 @@ class FichePreInscriptionController extends Controller
     private function generatePreInscriptionPdf(array $data, string $path): bool
     {
         try {
-            Log::info("Génération fiche pré-inscription...");
-            Log::info("Data: " . json_encode($data));
-            Log::info("Path: " . json_encode($path));
             PDF::loadview('inscription.preinscription', $data)->save($path);
             
             Log::info("Fiche pré-inscription générée avec succès");
@@ -183,11 +181,8 @@ class FichePreInscriptionController extends Controller
 
     private function generateStudentCardPdf(array $data, string $path): bool
     {
-        try {
-            Log::info("Génération carte étudiant...");
-            
+        try {            
             PDF::loadView('inscription.studentcard', $data)->save($path);
-            
             Log::info("Carte étudiant générée avec succès");
             return true;
             

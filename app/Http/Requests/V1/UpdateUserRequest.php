@@ -52,6 +52,10 @@ class UpdateUserRequest extends FormRequest
                 'birthdate' => ['nullable', 'date'],
                 'birthplace' => ['nullable', 'string', 'max:255'],
                 'profile' => ['nullable', 'string', 'max:255'],
+                'acte_naissance' => ['sometimes', 'file', 'max:2048'],
+                'cip' => ['sometimes', 'file', 'max:2048'],
+                'attestation_bac' => ['sometimes', 'file', 'max:2048'],
+                'certificat_nationalite' => ['sometimes', 'file', 'max:2048']
             ];
         }else{
             return [
@@ -64,6 +68,10 @@ class UpdateUserRequest extends FormRequest
                 'birthdate' => ['sometimes', 'nullable', 'date'],
                 'birthplace' => ['sometimes', 'nullable', 'string', 'max:255'],
                 'profile' => ['sometimes', 'nullable', 'string', 'max:255'],
+                'acte_naissance' => ['sometimes', 'file', 'max:2048'],
+                'cip' => ['sometimes', 'file', 'max:2048'],
+                'attestation_bac' => ['sometimes', 'file', 'max:2048'],
+                'certificat_nationalite' => ['sometimes', 'file', 'max:2048']
             ];
         }
     }

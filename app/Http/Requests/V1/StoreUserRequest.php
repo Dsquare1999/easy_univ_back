@@ -48,10 +48,10 @@ class StoreUserRequest extends FormRequest
             'birthdate' => ['nullable', 'date'],
             'birthplace' => ['nullable', 'string', 'max:255'],
             'profile' => ['sometimes', 'file', 'image', 'max:2048'],
-            'acte_naissance' => ['sometimes', 'file', 'image', 'max:2048'],
-            'cip' => ['sometimes', 'file', 'image', 'max:2048'],
-            'attestation_bac' => ['sometimes', 'file', 'image', 'max:2048'],
-            'certificat_nationalite' => ['sometimes', 'file', 'image', 'max:2048'],
+            'acte_naissance' => ['sometimes', 'file', 'max:2048'],
+            'cip' => ['sometimes', 'file', 'max:2048'],
+            'attestation_bac' => ['sometimes', 'file', 'max:2048'],
+            'certificat_nationalite' => ['sometimes', 'file', 'max:2048'],
         ];
     }
 

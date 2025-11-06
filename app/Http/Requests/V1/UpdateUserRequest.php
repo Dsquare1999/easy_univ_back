@@ -78,7 +78,38 @@ class UpdateUserRequest extends FormRequest
         return [
             'email.unique' => 'The email has already been taken.',
             'matricule.unique' => 'The matricule has already been taken.',
-            
         ];
+    }
+
+    public function validated($key = null, $default = null)
+    {
+        $data = parent::validated($key, $default);
+        if ($this->hasFile('profile')) {
+            $file = $this->file('profile');
+            $path = $file->store('profiles', 'public');
+            $data['profile'] = $path;
+        }
+        if ($this->hasFile('acte_naissance')) {
+            $acte_naissance = $this->file('acte_naissance');
+            $path = $acte_naissance->store('documents', 'public');
+            $data['acte_naissance'] = $path;
+        }
+        if ($this->hasFile('cip')) {
+            $cip = $this->file('cip');
+            $path = $cip->store('documents', 'public');
+            $data['cip'] = $path;
+        }
+        if ($this->hasFile('attestation_bac')) {
+            $attestation_bac = $this->file('attestation_bac');
+            $path = $attestation_bac->store('documents', 'public');
+            $data['attestation_bac'] = $path;
+        }
+        if ($this->hasFile('certificat_nationalite')) {
+            $certificat_nationalite = $this->file('certificat_nationalite');
+            $path = $certificat_nationalite->store('documents', 'public');
+            $data['certificat_nationalite'] = $path;
+        }
+        
+        return $data;
     }
 }

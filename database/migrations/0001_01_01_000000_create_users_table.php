@@ -24,6 +24,10 @@ return new class extends Migration
             $table->string('birthplace')->nullable();
             $table->string('profile')->nullable();
             $table->string('cover')->nullable();
+            $table->string('acte_naissance')->nullable();
+            $table->string('cip')->nullable();
+            $table->string('attestation_bac')->nullable();
+            $table->string('certificat_nationalite')->nullable();
             $table->string('bio')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');

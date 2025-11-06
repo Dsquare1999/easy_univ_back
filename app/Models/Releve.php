@@ -14,9 +14,9 @@ class Releve extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'classe', 
-        'matiere', 
-        'student', 
+        'classe',
+        'matiere',
+        'student',
         'exam1',
         'observation_exam1',
         'exam2',

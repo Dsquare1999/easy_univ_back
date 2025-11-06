@@ -48,7 +48,10 @@ class StoreUserRequest extends FormRequest
             'birthdate' => ['nullable', 'date'],
             'birthplace' => ['nullable', 'string', 'max:255'],
             'profile' => ['sometimes', 'file', 'image', 'max:2048'],
-
+            'acte_naissance' => ['sometimes', 'file', 'image', 'max:2048'],
+            'cip' => ['sometimes', 'file', 'image', 'max:2048'],
+            'attestation_bac' => ['sometimes', 'file', 'image', 'max:2048'],
+            'certificat_nationalite' => ['sometimes', 'file', 'image', 'max:2048'],
         ];
     }
 
@@ -75,6 +78,27 @@ class StoreUserRequest extends FormRequest
             $path = $file->store('profiles', 'public');
             $data['profile'] = $path;
         }
+        if ($this->hasFile('acte_naissance')) {
+            $acte_naissance = $this->file('acte_naissance');
+            $path = $acte_naissance->store('documents', 'public');
+            $data['acte_naissance'] = $path;
+        }
+        if ($this->hasFile('cip')) {
+            $cip = $this->file('cip');
+            $path = $cip->store('documents', 'public');
+            $data['cip'] = $path;
+        }
+        if ($this->hasFile('attestation_bac')) {
+            $attestation_bac = $this->file('attestation_bac');
+            $path = $attestation_bac->store('documents', 'public');
+            $data['attestation_bac'] = $path;
+        }
+        if ($this->hasFile('certificat_nationalite')) {
+            $certificat_nationalite = $this->file('certificat_nationalite');
+            $path = $certificat_nationalite->store('documents', 'public');
+            $data['certificat_nationalite'] = $path;
+        }
+        
         return $data;
     }
 

@@ -67,6 +67,10 @@ class User extends Authenticatable
         'profile',
         'cover',
         'bio',
+        'acte_naissance',
+        'cip',
+        'attestation_bac',
+        'certificat_nationalite'
     ];
 
     /**

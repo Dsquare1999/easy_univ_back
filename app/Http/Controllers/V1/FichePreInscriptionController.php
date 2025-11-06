@@ -92,7 +92,7 @@ class FichePreInscriptionController extends Controller
 
     private function ensureDirectoriesExist(): void
     {
-        $directories = ['inscriptions', 'cards', 'qrcodes'];
+        $directories = ['inscriptions', 'cards', 'qrcodes', 'releves', 'bulletins'];
         
         foreach ($directories as $directory) {
             if (Storage::directoryMissing($directory)) {

@@ -132,7 +132,7 @@
                 </td>
                 <td class="header-right-cell">
                     <p><strong>Année universitaire :</strong> {{ $classe->academic_year }}-{{ $classe->academic_year + 1 }}</p>
-                    <p><strong>Semestre :</strong> Semestre I</p>
+                    <p><strong>Semestre :</strong> Semestre {{ $year_part == 1 ? 'I' : 'II' }}</p>
                 </td>
             </tr>
         </table>
@@ -218,10 +218,10 @@
         <!-- 🖋️ Pied de page -->
         <table class="footer-table">
             <tr>
-                <td class="footer-date-cell">Fait à Abomey, le ____ / ____ / ________</td>
+                <td class="footer-date-cell">Fait à Porto-Novo, le {{ now()->format('d') }} / {{ now()->format('m') }} / {{ now()->format('Y') }}</td>
                 <td class="footer-signature-cell">
-                    <strong>Le Directeur de l'INSPEI</strong><br><br><br>
-                    <span>Dr Christian D. AKOWANOU</span>
+                    <strong>Le Directeur de l'EPUMA le Phénix</strong><br><br><br>
+                    <span>M. ASSONGBA S. Anicet</span>
                 </td>
             </tr>
         </table>

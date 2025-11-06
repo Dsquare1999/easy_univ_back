@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Bulletin de Notes - INSPEI</title>
+    <title>Bulletin de Notes - EPUMA</title>
     <style>
         @page {
             margin: 15mm;
@@ -194,7 +194,7 @@
                         <p><strong>Filière :</strong> {{ $filiere->name }}</p>
                         <p><strong>Année :</strong> {{ $classe->year }}</p>
                         <p><strong>Année universitaire :</strong> {{ $classe->academic_year }}-{{ $classe->academic_year + 1 }}</p>
-                        <p><strong>Semestre :</strong> I</p>
+                        <p><strong>Semestre :</strong> {{ $year_part == 1 ? 'I' : 'II' }}</p>
                     </td>
                     <td>
                         <p><strong>Nom :</strong> {{ $note['user']->lastname }}</p>
@@ -272,11 +272,6 @@
                             </tr>
                         @endforeach
                     @endforeach
-
-
-                    
-
-
                     <!-- ... autres lignes de notes ... -->
                 </tbody>
                 <tfoot>
@@ -298,37 +293,16 @@
                 Côte D = entre 60 et 70 Abien - Côte E = entre 50 et 60 Passable Côte F = ajourné
             </p>
             <div class="semester-average">
-                <strong>MOYENNE DU SEMESTRE 1 /100:</strong><span class="average-box">80,82</span>
+                <strong>MOYENNE DU SEMESTRE {{ $year_part }} /100:</strong><span class="average-box">80,82</span>
                 <strong>Côte:</strong><span class="average-box">B</span>
             </div>
-            <p class="decision"><strong>Décision du Conseil des Enseignants:</strong> Admis(e) au semestre 2</p>
+            <p class="decision"><strong>Décision du Conseil des Enseignants:</strong> Admis(e) au semestre {{ $year_part }}</p>
 
             <table class="signatures-table">
                 <tr>
-                    <!-- Cellule pour les tampons de gauche -->
-                    <td style="vertical-align: middle;">
-                        <!-- Les tampons sont absolus par rapport à la cellule <td> -->
-                        <div class="stamp municipal-stamp">AXE MUNICIPALE CAL.CICE 2023 N°S / 500F 12 AVRIL 2023</div>
-                        <div class="stamp red-stamp">REPUBLIQUE DU BENIN DEPARTEMENT DU LITTORAL MAIRIE DE COTONOU</div>
-                    </td>
-                    <!-- Cellule pour la signature centrale -->
                     <td>
-                        <p>Fait à Abomey, le ...................................</p>
-                        <div class="certification-box">
-                            <strong>Pour Photocopie Certifiée</strong><br>
-                            Conforme à l'original qui nous a été<br>
-                            Présenté en Date.....................................<br>
-                            <strong>Pour le Maire de Cotonou et PD</strong><br>
-                            Le Deuxième Adjoint au Maire<br>
-                            délégataire
-                        </div>
-                        <div class="signature-placeholder">Signature Gatien ADJAGBONI</div>
-                    </td>
-                    <!-- Cellule pour la signature de droite -->
-                    <td>
-                        <div class="stamp director-stamp">SUPERIEUR DES CLASSES PREPARATOIRES...</div>
-                        <div class="signature-placeholder director-signature">Signature Christian D. AKOWANOU</div>
-                        <p><strong>Dr Christian D. AKOWANOU</strong><br>Maître de Conférences (CAMES)<br>Directeur de l'INSPEI</p>
+                        <div class="signature-placeholder director-signature">Signature ASSONGBA S. Anicet</div>
+                        <p><strong>M. ASSONGBA S. Anicet</strong><br>Directeur de EPUMA le Phénix</p>
                     </td>
                 </tr>
             </table>

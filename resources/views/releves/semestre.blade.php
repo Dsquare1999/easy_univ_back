@@ -137,7 +137,7 @@
             </tr>
         </table>
         
-        <h1 class="main-title">RELEVÉ DE NOTES DE LA CLASSE</h1>
+        <h1 class="main-title">RÉSULTATS DE FIN DE SEMESTRE</h1>
 
         <main class="class-grades-container">
             <table class="class-grades-table">
@@ -193,7 +193,7 @@
                         </tr>
                     @endforeach
                 </tbody>
-                <tfoot>
+                <!-- <tfoot>
                     <tr class="class-average-row">
                         <td colspan="2"><strong>MOYENNE DE LA CLASSE</strong></td>
                         @foreach($unites as $unite)
@@ -211,7 +211,7 @@
                         @endforeach
                         <td colspan="2"></td>
                     </tr>
-                </tfoot>
+                </tfoot> -->
             </table>
         </main>
         

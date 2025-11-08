@@ -108,30 +108,120 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateCycleRequest $request, $id)
+    // public function update(UpdateUserRequest $request, $id)
+    // {
+    //     try {
+    //         $user = User::findOrFail($id);
+
+    //         $user->update($request->validated());
+    //         $user = User::findOrFail($id);
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'User updated successfully',
+    //             'data'    => $user,
+    //             'request' => $request->validated()
+    //         ], 200);
+    
+    //     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Cycle not found',
+    //             'errors'  => ['message' => $e->getMessage()],
+    //         ], 404);
+    
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Failed to update cycle',
+    //             'errors'  => ['message' => $e->getMessage()],
+    //         ], 500);
+    //     }
+    // }
+    // public function update(UpdateUserRequest $request, $id)
+    // {
+    //     try {
+    //         Log::info('Updating user: ' . $id);
+    //         Log::info('Request data:', $request->all());
+            
+    //         $user = User::findOrFail($id);
+    //         $validatedData = $request->validated();
+            
+    //         Log::info('Validated data in controller:', $validatedData);
+            
+    //         $user->update($validatedData);
+            
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'User updated successfully',
+    //             'data'    => $user->fresh(),
+    //         ], 200);
+    //     } catch (\Exception $e) {
+    //         Log::error('Update user error: ' . $e->getMessage());
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Failed to update user',
+    //             'errors'  => ['message' => $e->getMessage()],
+    //         ], 500);
+    //     }
+    // }
+    public function update(UpdateUserRequest $request, $id)
     {
         try {
+            Log::info('Update method called for user: ' . $id);
+            
+            // Log raw request details
+            Log::info('Content-Type: ' . $request->header('Content-Type'));
+            Log::info('Request method: ' . $request->method());
+            Log::info('Raw request content:', [
+                'all' => $request->all(),
+                'post' => $_POST,
+                'files' => $_FILES,
+                'input' => $request->input(),
+                'request' => $request->request->all(),
+            ]);
+            
             $user = User::findOrFail($id);
-
-            $user->update($request->validated());
-            $user = User::findOrFail($id);
+            
+            // Get raw input data
+            $input = $request->all();
+            Log::info('Raw input data:', $input);
+            
+            // Process validation
+            $validatedData = $request->validated();
+            Log::info('Validated data:', $validatedData);
+            
+            if (empty($validatedData)) {
+                Log::warning('No validated data found. Raw input was:', $input);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No valid data provided for update',
+                    'debug_info' => [
+                        'raw_input' => $input,
+                        'content_type' => $request->header('Content-Type'),
+                        'method' => $request->method()
+                    ]
+                ], 422);
+            }
+            
+            // Update user
+            $user->update($validatedData);
+            
             return response()->json([
                 'success' => true,
                 'message' => 'User updated successfully',
-                'data'    => $user,
+                'data'    => $user->fresh(),
+                'debug_info' => [
+                    'raw_input' => $input,
+                    'validated_data' => $validatedData,
+                    'files_received' => array_keys($request->allFiles())
+                ]
             ], 200);
-    
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Cycle not found',
-                'errors'  => ['message' => $e->getMessage()],
-            ], 404);
-    
         } catch (\Exception $e) {
+            Log::error('Update error: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update cycle',
+                'message' => 'Failed to update user',
                 'errors'  => ['message' => $e->getMessage()],
             ], 500);
         }

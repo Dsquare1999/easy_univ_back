@@ -167,31 +167,30 @@ class AuthenticatedSessionController extends Controller
 
         try {
             $user = $request->user();
+            $validatedData = $request->validated();
 
-            $user->firstname = $request->input('firstname', $user->firstname);
-            $user->lastname = $request->input('lastname', $user->lastname);
-            $user->email = $request->input('email', $user->email);
-            $user->bio = $request->input('bio', $user->bio);
-            $user->phone = $request->input('phone', $user->phone);
-            $user->matricule = $request->input('matricule', $user->matricule);
-            $user->nationality = $request->input('nationality', $user->nationality);
-            $user->birthplace = $request->input('birthplace', $user->birthplace);
-            $user->birthdate = $request->input('birthdate', $user->birthdate);
-
-            if ($request->hasFile('profile')) {
-                if ($user->profile) {
-                    Storage::disk('public')->delete($user->profile);
-                }
-
-                $path = $request->file('profile')->store('profiles', 'public');
-                $user->profile = $path;
-            }
-
+            $user->firstname = $validatedData['firstname'] ?? $user->firstname;
+            $user->lastname = $validatedData['lastname'] ?? $user->lastname;
+            $user->email = $validatedData['email'] ?? $user->email;
+            $user->bio = $validatedData['bio'] ?? $user->bio;
+            $user->phone = $validatedData['phone'] ?? $user->phone;
+            $user->matricule = $validatedData['matricule'] ?? $user->matricule;
+            $user->nationality = $validatedData['nationality'] ?? $user->nationality;
+            $user->birthplace = $validatedData['birthplace'] ?? $user->birthplace;
+            $user->birthdate = $validatedData['birthdate'] ?? $user->birthdate;
+            $user->address = $validatedData['address'] ?? $user->address;
+            $user->sexe = $validatedData['sexe'] ?? $user->sexe;
+            $user->profile = $validatedData['profile'] ?? $user->profile;
+            $user->acte_naissance = $validatedData['acte_naissance'] ?? $user->acte_naissance;
+            $user->cip = $validatedData['cip'] ?? $user->cip;
+            $user->attestation_bac = $validatedData['attestation_bac'] ?? $user->attestation_bac;
+            $user->certificat_nationalite = $validatedData['certificat_nationalite'] ?? $user->certificat_nationalite;
             $user->save();
 
             $response['success'] = true;
             $response['message'] = 'Profile updated successfully';
             $response['data'] = $user;
+            $response['request'] = $request->validated();
             $responseCode = 200;
 
             return response()->json($response, $responseCode);

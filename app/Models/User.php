@@ -57,6 +57,7 @@ class User extends Authenticatable
         'firstname',
         'lastname',
         'email',
+        'sexe',
         'matricule',
         'nationality',
         'birthdate',
@@ -70,7 +71,8 @@ class User extends Authenticatable
         'acte_naissance',
         'cip',
         'attestation_bac',
-        'certificat_nationalite'
+        'certificat_nationalite',
+        'address'
     ];
 
     /**

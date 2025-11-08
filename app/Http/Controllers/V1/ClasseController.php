@@ -12,6 +12,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\V1\StoreClasseRequest;
 use App\Http\Requests\V1\UpdateClasseRequest;
 
+use Illuminate\Support\Facades\Storage; 
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use App\Models\Tag;
+use Illuminate\Http\Request;
+use PhpOffice\PhpSpreadsheet\Style\Protection;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Illuminate\Support\Facades\Auth;
 
 class ClasseController extends Controller
@@ -79,6 +86,253 @@ class ClasseController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Download in storage
+     */
+    public function download($classeId)
+    {
+        try {
+            // Récupérer la classe avec les étudiants
+            $classe = Classe::with(['students.user'])->findOrFail($classeId);
+
+            // Créer un nouveau spreadsheet
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+
+            // En-têtes
+            $sheet->setCellValue('A1', 'Nom');
+            $sheet->setCellValue('B1', 'Prénoms');
+            $sheet->setCellValue('C1', 'Sexe');
+            $sheet->setCellValue('D1', 'Matricule');
+            $sheet->setCellValue('E1', 'E-mail');
+            $sheet->setCellValue('F1', 'Téléphone');
+            $sheet->setCellValue('G1', 'Titre');
+            $sheet->setCellValue('H1', 'Nationalité');
+            $sheet->setCellValue('I1', 'Date de Naissance');
+            $sheet->setCellValue('J1', 'Lieu de Naissance');
+            $sheet->setCellValue('K1', 'Adresse');
+
+            // Style des en-têtes
+            $headerStyle = [
+                'font' => ['bold' => true],
+                'alignment' => ['horizontal' => 'center'],
+                'borders' => [
+                    'allBorders' => ['borderStyle' => 'thin']
+                ],
+                'fill' => [
+                    'fillType' => 'solid',
+                    'startColor' => ['rgb' => 'E0E0E0']
+                ]
+            ];
+
+            $sheet->getStyle('A1:K1')->applyFromArray($headerStyle);
+
+            // Remplir les données des étudiants
+            $row = 2;
+            foreach ($classe->students as $student) {
+                $user = User::find($student->user);
+                $sheet->setCellValue('A' . $row, $user->lastname);
+                $sheet->setCellValue('B' . $row, $user->firstname);
+                $sheet->setCellValue('C' . $row, $user->sexe);
+                $sheet->setCellValue('D' . $row, $user->matricule);
+                $sheet->setCellValue('E' . $row, $user->email);
+                $sheet->setCellValue('F' . $row, $user->phone);
+                $sheet->setCellValue('G' . $row, $student->titre);
+                $sheet->setCellValue('H' . $row, $user->nationality);
+                $sheet->setCellValue('I' . $row, $user->birthdate);
+                $sheet->setCellValue('J' . $row, $user->birthplace);
+                $sheet->setCellValue('K' . $row, $user->address);
+                $row++;
+            }
+
+            foreach (range('A', 'K') as $col) {
+                $sheet->getColumnDimension($col)->setAutoSize(true);
+            }
+
+            // Ajuster la largeur des colonnes
+            $sheet->getColumnDimension('A')->setWidth(10);
+            $sheet->getColumnDimension('B')->setWidth(30);
+            $sheet->getColumnDimension('C')->setWidth(10);
+            $sheet->getColumnDimension('D')->setWidth(20);
+            $sheet->getColumnDimension('E')->setWidth(30);
+            $sheet->getColumnDimension('F')->setWidth(15);
+            $sheet->getColumnDimension('G')->setWidth(15);
+            $sheet->getColumnDimension('H')->setWidth(20);
+            $sheet->getColumnDimension('I')->setWidth(15);
+            $sheet->getColumnDimension('J')->setWidth(20);
+            $sheet->getColumnDimension('K')->setWidth(40);
+
+            $sheet->getProtection()
+                ->setSheet(true)
+                ->setPassword('LePhenix2025');
+
+            // $sheet->getProtection()->setSheet(true);
+            $sheet->getStyle('A:K')->getProtection()
+                ->setLocked(Protection::PROTECTION_UNPROTECTED);
+            $sheet->getStyle('L:XFD')->getProtection()
+            ->setLocked(Protection::PROTECTION_PROTECTED);
+
+            // $sheet->getStyle('A2:K' . ($row-1))->getProtection()
+            //     ->setLocked(false);
+
+            // Nom du fichier
+            $filename = "etudiants_template_" . $classeId . ".xlsx";
+            $path = Storage::disk('local')->path($filename);
+
+            $writer = new Xlsx($spreadsheet);
+            $writer->save($path);
+
+            // 🔥 Retourner le fichier en réponse HTTP (stream binaire)
+            return response()->download($path, $filename, [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            ])->deleteFileAfterSend(true);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la génération du template',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function import(Request $request, $classeId)
+    {
+        try {
+            $request->validate([
+                'file' => 'required|file|mimes:xlsx,xls'
+            ]);
+
+            $classe = Classe::findOrFail($classeId);
+            $tag = Tag::where('fee', 0)->first();
+
+            if (!$tag) {
+                throw new \Exception("Tag avec frais 0 non trouvé");
+            }
+
+            $file = $request->file('file');
+            $spreadsheet = IOFactory::load($file->getPathname());
+            $worksheet = $spreadsheet->getActiveSheet();
+            $rows = $worksheet->toArray();
+
+            array_shift($rows);
+
+            $stats = [
+                'users_created' => 0,
+                'users_updated' => 0,
+                'students_created' => 0,
+                'errors' => []
+            ];
+
+            // Traiter chaque ligne
+            foreach ($rows as $row) {
+                if (empty($row[4])) {
+                    continue;
+                }
+
+                $rawBirthdate = $row[8] ?? null;
+                $birthdate = null;
+
+                if (!empty($rawBirthdate)) {
+                    try {
+                        if (is_numeric($rawBirthdate)) {
+                            $birthdate = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($rawBirthdate)
+                                ->format('Y-m-d');
+                        } else {
+                            $parsed = \DateTime::createFromFormat('m/d/Y', $rawBirthdate)
+                                ?: \DateTime::createFromFormat('d/m/Y', $rawBirthdate)
+                                ?: \DateTime::createFromFormat('Y-m-d', $rawBirthdate);
+
+                            if ($parsed) {
+                                $birthdate = $parsed->format('Y-m-d');
+                            } else {
+                                throw new \Exception("Format de date invalide : $rawBirthdate");
+                            }
+                        }
+                    } catch (\Throwable $th) {
+                        throw new \Exception("Impossible de lire la date de naissance : $rawBirthdate");
+                    }
+                }
+
+
+                try {
+                    // Préparer les données utilisateur
+                    $userData = [
+                        'firstname' => $row[1] ?? '',
+                        'lastname' => $row[0] ?? '',
+                        'sexe' => $row[2] ?? '',
+                        'matricule' => $row[3] ?? '',
+                        'email' => $row[4],
+                        'phone' => $row[5] ?? '',     // Téléphone
+                        'nationality' => $row[7] ?? '', // Nationalité
+                        'birthdate' => $birthdate, // Date de naissance
+                        'birthplace' => $row[9] ?? '', // Lieu de naissance
+                        'address' => $row[10] ?? '',    // Adresse
+                        'type' => 0,                    // Type étudiant
+                        'password' => bcrypt('password') // Mot de passe par défaut
+                    ];
+
+                    // Créer ou mettre à jour l'utilisateur
+                    $user = User::updateOrCreate(
+                        ['email' => $userData['email']],
+                        $userData
+                    );
+
+                    // Vérifier si l'étudiant existe déjà dans cette classe
+                    $existingStudent = Student::where('user', $user->id)
+                        ->where('classe', $classeId)
+                        ->first();
+
+                    if (!$existingStudent) {
+                        // Créer l'étudiant
+                        $student = Student::create([
+                            'user' => $user->id,
+                            'classe' => $classeId,
+                            'tag' => $tag->id,
+                            'titre' => $row[6] ?? 'ATP', // Titre par défaut
+                            'statut' => 'PRE-INSCRIT'
+                        ]);
+
+                        // Créer les relevés pour chaque matière
+                        foreach ($classe->matieres as $matiere) {
+                            Releve::create([
+                                'student' => $student->id,
+                                'matiere' => $matiere->id,
+                                'classe' => $classeId,
+                            ]);
+                        }
+
+                        $stats['students_created']++;
+                    }
+
+                    if ($user->wasRecentlyCreated) {
+                        $stats['users_created']++;
+                    } else {
+                        $stats['users_updated']++;
+                    }
+
+                } catch (\Exception $e) {
+                    $stats['errors'][] = "Erreur ligne " . $row[4] . ": " . $e->getMessage();
+                    continue;
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Import terminé avec succès',
+                'data' => $stats
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de l\'import',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
 
     /**
      * Display the specified resource.

@@ -47,6 +47,8 @@ class StoreUserRequest extends FormRequest
             'phone' => ['nullable', 'string', 'max:20'],
             'birthdate' => ['nullable', 'date'],
             'birthplace' => ['nullable', 'string', 'max:255'],
+            'address' => ['nullable', 'string', 'max:255'],
+            'sexe'    => ['nullable', 'string', 'in:M,F'],
             'profile' => ['sometimes', 'file', 'image', 'max:2048'],
             'acte_naissance' => ['sometimes', 'file', 'max:2048'],
             'cip' => ['sometimes', 'file', 'max:2048'],

@@ -65,6 +65,7 @@ Route::prefix('/v1/users')->middleware('auth:sanctum', 'ability:' . EasyUnivToke
     Route::post("/turnStudent", [AuthenticatedSessionController::class, "turnStudent"]);
     Route::get("/teachersByClasse/{classeId}", [AuthenticatedSessionController::class, "teachersByClasse"]);
     Route::get("/studentsByClasse/{classeId}", [AuthenticatedSessionController::class, "studentsByClasse"]);
+    Route::post('/update/{id}',  [UserController::class, "update"])->middleware('log.route')->name('users.update');
     Route::delete("/deleteUser/{id}", [AuthenticatedSessionController::class, "deleteUser"]);
 });
 
@@ -91,6 +92,8 @@ Route::prefix('/v1/classes')->middleware('auth:sanctum', 'ability:' . EasyUnivTo
     Route::get("/", [ClasseController::class, "index"]);
     Route::get("/show/{id}", [ClasseController::class,"show"]);
     Route::post("/store", [ClasseController::class,"store"]);
+    Route::get("/download/{classeId}", [ClasseController::class,"download"]);
+    Route::post("/import/{classeId}", [ClasseController::class,"import"]);
     Route::match(['put', 'patch'], '/update/{id}',  [ClasseController::class,"update"]);
     Route::delete("/destroy/{id}",  [ClasseController::class,"destroy"]);
 });

@@ -152,7 +152,7 @@
                 <td style="vertical-align: top;">
                     <h1>EPUMA Le Phénix</h1>
                     <h2>Fiche de Pré-Inscription</h2>
-                    <p>Compte Ecobank Inscription N° 321106970703 | Compte UBA N° 506100001485</p>
+                    <p>Compte Coris Bank CPET LE PHENIX N° 002420224101</p>
                 </td>
                 <td style="vertical-align: top; text-align: right;">
                     <img src="{{ public_path('storage/logo-epuma.png') }}" alt="Logo EPUMA" class="logo-epuma"/>
@@ -279,7 +279,7 @@
                     </ol>
                 </td>
                 <td class="column-divider">
-                     <h4 class="column-title">Pièces à fournir pour s'inscrire à l'UAC</h4>
+                     <h4 class="column-title">Pièces à fournir pour s'inscrire à l'EPUMA</h4>
                     <ul>
                         <li>Fiche de préinscription + sa photocopie.</li>
                         <li>Copie du relevé du BAC...</li>
@@ -296,10 +296,10 @@
 
         <!-- 📚 Pied de page -->
         <footer class="page-footer">
-            <div class="library-info">
+            <!-- <div class="library-info">
                 <h4 class="column-title">Bibliothèque Universitaire</h4>
                 <p>La Bibliothèque de l'Ecole Polytechnique Universitaire des Métiers d'Avenir...</p>
-            </div>
+            </div> -->
             <p class="final-note">
                 <strong>NB:</strong> La validation de votre inscription est obligatoire...
             </p>

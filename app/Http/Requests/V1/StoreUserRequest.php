@@ -74,7 +74,7 @@ class StoreUserRequest extends FormRequest
     public function validated($key = null, $default = null)
     {
         $data = parent::validated($key, $default);
-        $data['password'] = 'password123'; 
+        
         if ($this->hasFile('profile')) {
             $file = $this->file('profile');
             $path = $file->store('profiles', 'public');

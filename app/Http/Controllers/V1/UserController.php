@@ -105,65 +105,6 @@ class UserController extends Controller
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    // public function update(UpdateUserRequest $request, $id)
-    // {
-    //     try {
-    //         $user = User::findOrFail($id);
-
-    //         $user->update($request->validated());
-    //         $user = User::findOrFail($id);
-    //         return response()->json([
-    //             'success' => true,
-    //             'message' => 'User updated successfully',
-    //             'data'    => $user,
-    //             'request' => $request->validated()
-    //         ], 200);
-    
-    //     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Cycle not found',
-    //             'errors'  => ['message' => $e->getMessage()],
-    //         ], 404);
-    
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Failed to update cycle',
-    //             'errors'  => ['message' => $e->getMessage()],
-    //         ], 500);
-    //     }
-    // }
-    // public function update(UpdateUserRequest $request, $id)
-    // {
-    //     try {
-    //         Log::info('Updating user: ' . $id);
-    //         Log::info('Request data:', $request->all());
-            
-    //         $user = User::findOrFail($id);
-    //         $validatedData = $request->validated();
-            
-    //         Log::info('Validated data in controller:', $validatedData);
-            
-    //         $user->update($validatedData);
-            
-    //         return response()->json([
-    //             'success' => true,
-    //             'message' => 'User updated successfully',
-    //             'data'    => $user->fresh(),
-    //         ], 200);
-    //     } catch (\Exception $e) {
-    //         Log::error('Update user error: ' . $e->getMessage());
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Failed to update user',
-    //             'errors'  => ['message' => $e->getMessage()],
-    //         ], 500);
-    //     }
-    // }
     public function update(UpdateUserRequest $request, $id)
     {
         try {

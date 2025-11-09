@@ -8,6 +8,7 @@ use App\Models\Filiere;
 use App\Models\Cycle;
 use App\Models\Student;
 use App\Models\Unite;
+use App\Models\Releve;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\V1\StoreClasseRequest;
 use App\Http\Requests\V1\UpdateClasseRequest;
@@ -269,8 +270,7 @@ class ClasseController extends Controller
                         'birthdate' => $birthdate, // Date de naissance
                         'birthplace' => $row[9] ?? '', // Lieu de naissance
                         'address' => $row[10] ?? '',    // Adresse
-                        'type' => 0,                    // Type étudiant
-                        'password' => bcrypt('password') // Mot de passe par défaut
+                        'type' => 0
                     ];
 
                     // Créer ou mettre à jour l'utilisateur
@@ -435,6 +435,157 @@ class ClasseController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete classe',
+                'errors'  => ['message' => $e->getMessage()],
+            ], 500);
+        }
+    }
+
+
+    /**
+     * Promote students to next year
+     * @param string $id ID of the current class
+     */
+    public function promote($id)
+    {
+        try {
+            // Récupérer la classe actuelle avec ses relations
+            $currentClasse = Classe::with(['filiere', 'cycle', 'students.user'])->findOrFail($id);
+            
+            // Vérifier si une classe pour l'année suivante existe déjà
+            $nextYear = $currentClasse->academic_year + 1;
+            $nextClassYear = $currentClasse->year + 1;
+            
+            $existingNextClass = Classe::where('filiere', $currentClasse->filiere)
+                ->where('cycle', $currentClasse->cycle)
+                ->where('year', $nextClassYear)
+                ->where('academic_year', $nextYear)
+                ->first();
+
+            if ($existingNextClass) {
+                throw new \Exception('Une classe pour l\'année suivante existe déjà');
+            }
+
+            // Créer la nouvelle classe
+            $newClasse = Classe::create([
+                'filiere' => $currentClasse->filiere,
+                'cycle' => $currentClasse->cycle,
+                'year' => $nextClassYear,
+                'academic_year' => $nextYear,
+                'parts' => $currentClasse->parts,
+                'status' => 0
+            ]);
+
+            $studentsPromoted = 0;
+            $errors = [];
+
+            // Pour chaque étudiant de la classe actuelle
+            foreach ($currentClasse->students as $student) {
+                try {
+                    $newStudent = Student::create([
+                        'user' => $student->user,
+                        'classe' => $newClasse->id,
+                        'tag' => $student->tag,
+                        'titre' => $student->titre,
+                        'statut' => 'EN ATTENTE'
+                    ]);
+
+                    // Créer les relevés pour les matières (s'il y en a)
+                    foreach ($newClasse->matieres as $matiere) {
+                        Releve::create([
+                            'student' => $newStudent->id,
+                            'matiere' => $matiere->id,
+                            'classe' => $newClasse->id
+                        ]);
+                    }
+
+                    $studentsPromoted++;
+                } catch (\Exception $e) {
+                    $errors[] = "Erreur lors de la promotion de l'étudiant {$student->user}: " . $e->getMessage();
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Classe clôturée et étudiants promus avec succès',
+                'data' => [
+                    'new_class' => $newClasse,
+                    'students_promoted' => $studentsPromoted,
+                    'errors' => $errors
+                ]
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la clôture de la classe',
+                'errors' => ['message' => $e->getMessage()]
+            ], 500);
+        }
+    }
+
+    /**
+     * Export student list as PDF
+     */
+    public function export($id)
+    {
+        try {
+            $classe = Classe::with(['filiere', 'cycle'])->findOrFail($id);
+            \Log::info('Class Object', $classe->toArray());
+            
+            $filiere = Filiere::find($classe->filiere);
+            $cycle = Cycle::find($classe->cycle);
+
+            \Log::info('Cycle Object', $cycle->toArray());
+            $students = Student::where('classe', $id)
+                ->with('user')
+                ->get();
+
+            \Log::info('Students Object', $students->toArray());
+            $students_data = [];
+            foreach ($students as $student) {
+                $user = User::find($student->user);
+                $students_data[] = [
+                    'id' => $student->id,
+                    'titre' => $student->titre,
+                    'lastname' => $user ? $user->lastname : null,
+                    'firstname' => $user ? $user->firstname : null,
+                    'matricule' => $user ? $user->matricule : null,
+                    'phone' => $user ? $user->phone : null,
+                    'email' => $user ? $user->email : null,
+                    'sexe' => $user ? $user->sexe : null
+                ];
+            }
+            \Log::info('Filtered students data array', $students_data);
+
+            // Créer le PDF
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('classes.student-list-export', [
+                'classe' => $classe,
+                'filiere' => $filiere,
+                'cycle' => $cycle,
+                'students' => $students_data
+            ]);
+
+            // Configurer le PDF
+            $pdf->setPaper('A4', 'portrait');
+            $pdf->setOption(['dpi' => 150, 'defaultFont' => 'sans-serif']);
+
+            // Nom du fichier
+            $filename = 'Liste_Etudiants_' .$filiere->name . '_' . $classe->year . 'A_'. $classe->academic_year . '.pdf';
+
+            // Retourner le PDF pour téléchargement
+            return $pdf->download($filename);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Classe not found',
+                'errors'  => ['message' => $e->getMessage()],
+            ], 404);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to export student list',
                 'errors'  => ['message' => $e->getMessage()],
             ], 500);
         }

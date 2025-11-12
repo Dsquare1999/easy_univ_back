@@ -70,6 +70,7 @@ class UpdateUserRequest extends FormRequest
             'email' => ['sometimes', 'email', 'unique:users,email,' . $userId],
             'nationality' => ['sometimes', 'nullable', 'string', 'max:255'],
             'phone' => ['sometimes', 'nullable', 'string', 'max:20'],
+            'type' => ['sometimes', 'string'],
             'birthdate' => ['sometimes', 'nullable', 'date'],
             'birthplace' => ['sometimes', 'nullable', 'string', 'max:255'],
             'address' => ['sometimes', 'nullable', 'string', 'max:255'],
@@ -78,7 +79,11 @@ class UpdateUserRequest extends FormRequest
             'acte_naissance' => ['sometimes', 'nullable', 'file', 'max:2048'],
             'cip' => ['sometimes', 'nullable', 'file', 'max:2048'],
             'attestation_bac' => ['sometimes', 'nullable', 'file', 'max:2048'],
-            'certificat_nationalite' => ['sometimes', 'nullable', 'file', 'max:2048']
+            'certificat_nationalite' => ['sometimes', 'nullable', 'file', 'max:2048'],
+            'curriculum_vitae' => ['sometimes', 'file', 'max:2048'],
+            'diplomes' => ['sometimes', 'file', 'max:2048'],
+            'autorisation_enseigner' => ['sometimes', 'file', 'max:2048'],
+            'preuve_experience' => ['sometimes', 'file', 'max:2048']
         ];
     }
 
@@ -99,30 +104,18 @@ class UpdateUserRequest extends FormRequest
     {
         Log::info('Validated method called');
         try {
-            // Log des données brutes
-            Log::info('Raw request data before validation:', $this->all());
-            Log::info('Files before validation:', array_keys($this->allFiles()));
-
-            // Validation des données
             $validatedData = parent::validated($key, $default);
             Log::info('Base validated data:', $validatedData ?? []);
+            $validatedData['password'] = bcrypt('password');
 
             // Traitement des fichiers
-            foreach (['profile', 'acte_naissance', 'cip', 'attestation_bac', 'certificat_nationalite'] as $file) {
+            foreach (['profile', 'acte_naissance', 'cip', 'attestation_bac', 'certificat_nationalite', 'curriculum_vitae', 'diplomes', 'autorisation_enseigner','preuve_experience'] as $file) {
                 if ($this->hasFile($file)) {
-                    Log::info("Processing file: {$file}");
                     $uploadedFile = $this->file($file);
-                    Log::info("File details:", [
-                        'original_name' => $uploadedFile->getClientOriginalName(),
-                        'mime_type' => $uploadedFile->getMimeType(),
-                        'size' => $uploadedFile->getSize()
-                    ]);
                     $path = $uploadedFile->store($file === 'profile' ? 'profiles' : 'documents', 'public');
                     $validatedData[$file] = $path;
-                    Log::info("File {$file} stored at: {$path}");
                 }
             }
-
             // Log final des données validées
             Log::info('Final validated data:', $validatedData);
             return $validatedData;

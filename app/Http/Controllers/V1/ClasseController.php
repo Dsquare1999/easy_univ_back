@@ -273,7 +273,13 @@ class ClasseController extends Controller
                         'type' => 0
                     ];
 
-                    // Créer ou mettre à jour l'utilisateur
+                    if(User::where('email', $userData['email'])->exists()) {
+                        $existingUser = User::where('email', $userData['email'])->first();
+                        $userData['password'] = $existingUser->password; 
+                    } else {
+                        $userData['password'] = bcrypt('password'); 
+                    }
+
                     $user = User::updateOrCreate(
                         ['email' => $userData['email']],
                         $userData

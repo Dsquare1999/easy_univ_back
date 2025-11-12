@@ -33,7 +33,18 @@ class DocumentController extends Controller
             if ($year) {
                 $query->where('year', $year);
             }   
-            $documents = $query->get();
+            $sub = Document::selectRaw('MAX(created_at) as latest_date, classe, student, tag')
+                ->groupBy('classe', 'student', 'tag');
+
+            $query->joinSub($sub, 'latest_docs', function ($join) {
+                $join->on('documents.classe', '=', 'latest_docs.classe')
+                    ->on('documents.student', '=', 'latest_docs.student')
+                    ->on('documents.tag', '=', 'latest_docs.tag')
+                    ->on('documents.created_at', '=', 'latest_docs.latest_date');
+            });
+
+            $documents = $query->get(['documents.*']);
+            
 
             return response()->json([
                 'success' => true,

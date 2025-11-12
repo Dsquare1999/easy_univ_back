@@ -6,6 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use App\Models\User;
 
 class StoreUserRequest extends FormRequest
@@ -45,6 +46,7 @@ class StoreUserRequest extends FormRequest
             'matricule' => ['required', 'string', 'max:255', 'unique:users'],
             'nationality' => ['nullable', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:20'],
+            'type' => ['sometimes', 'string'],
             'birthdate' => ['nullable', 'date'],
             'birthplace' => ['nullable', 'string', 'max:255'],
             'address' => ['nullable', 'string', 'max:255'],
@@ -54,6 +56,10 @@ class StoreUserRequest extends FormRequest
             'cip' => ['sometimes', 'file', 'max:2048'],
             'attestation_bac' => ['sometimes', 'file', 'max:2048'],
             'certificat_nationalite' => ['sometimes', 'file', 'max:2048'],
+            'curriculum_vitae' => ['sometimes', 'file', 'max:2048'],
+            'diplomes' => ['sometimes', 'file', 'max:2048'],
+            'autorisation_enseigner' => ['sometimes', 'file', 'max:2048'],
+            'preuve_experience' => ['sometimes', 'file', 'max:2048']
         ];
     }
 
@@ -73,35 +79,26 @@ class StoreUserRequest extends FormRequest
 
     public function validated($key = null, $default = null)
     {
-        $data = parent::validated($key, $default);
-        
-        if ($this->hasFile('profile')) {
-            $file = $this->file('profile');
-            $path = $file->store('profiles', 'public');
-            $data['profile'] = $path;
+        try {
+            // Validation des données
+            $validatedData = parent::validated($key, $default);
+            Log::info('Base validated data:', $validatedData ?? []);
+            $validatedData['password'] = bcrypt('password');
+
+            foreach (['profile', 'acte_naissance', 'cip', 'attestation_bac', 'certificat_nationalite', 'curriculum_vitae', 'diplomes', 'autorisation_enseigner','preuve_experience'] as $file) {
+                if ($this->hasFile($file)) {
+                    $uploadedFile = $this->file($file);
+                    $path = $uploadedFile->store($file === 'profile' ? 'profiles' : 'documents', 'public');
+                    $validatedData[$file] = $path;
+                }
+            }
+            Log::info('Final validated data:', $validatedData);
+            return $validatedData;
+
+        } catch (\Exception $e) {
+            Log::error('Validation error: ' . $e->getMessage());
+            throw $e;
         }
-        if ($this->hasFile('acte_naissance')) {
-            $acte_naissance = $this->file('acte_naissance');
-            $path = $acte_naissance->store('documents', 'public');
-            $data['acte_naissance'] = $path;
-        }
-        if ($this->hasFile('cip')) {
-            $cip = $this->file('cip');
-            $path = $cip->store('documents', 'public');
-            $data['cip'] = $path;
-        }
-        if ($this->hasFile('attestation_bac')) {
-            $attestation_bac = $this->file('attestation_bac');
-            $path = $attestation_bac->store('documents', 'public');
-            $data['attestation_bac'] = $path;
-        }
-        if ($this->hasFile('certificat_nationalite')) {
-            $certificat_nationalite = $this->file('certificat_nationalite');
-            $path = $certificat_nationalite->store('documents', 'public');
-            $data['certificat_nationalite'] = $path;
-        }
-        
-        return $data;
     }
 
 }

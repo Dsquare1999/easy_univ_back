@@ -108,18 +108,6 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request, $id)
     {
         try {
-            Log::info('Update method called for user: ' . $id);
-            
-            // Log raw request details
-            Log::info('Content-Type: ' . $request->header('Content-Type'));
-            Log::info('Request method: ' . $request->method());
-            Log::info('Raw request content:', [
-                'all' => $request->all(),
-                'post' => $_POST,
-                'files' => $_FILES,
-                'input' => $request->input(),
-                'request' => $request->request->all(),
-            ]);
             
             $user = User::findOrFail($id);
             

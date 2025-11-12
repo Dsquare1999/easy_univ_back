@@ -184,7 +184,7 @@
                     <div style="text-align: right; font-weight: bold; margin-bottom: 1rem;">
                         Année Académique :
                         <span style="border: 1px solid #000; padding: 2px 20px; margin-left: 5px;">
-                            2025-2026
+                            {{ $classe->academic_year }} - {{ $classe->academic_year + 1 }}
                         </span>
                     </div>
 
@@ -196,7 +196,7 @@
                         </tr>
                         <tr>
                             <td class="form-group-label">Matricule :</td>
-                            <td class="value-box">{{ $student->matricule ?? 'N/A' }}</td>
+                            <td class="value-box">{{ $student->matricule ?? 'Non défini' }}</td>
                         </tr>
                         <tr>
                             <td class="form-group-label">Nom :</td>
@@ -210,9 +210,9 @@
                             <td class="form-group-label">Né le :</td>
                             <td class="value-box" style="border-right: none;">
                                 {{-- Formatage de date. Ex: \Carbon\Carbon::parse($user->birthdate)->format('d/m/Y') --}}
-                                {{ $user->birthdate ?? '01/01/2000' }}
+                                {{ $user->birthdate ?? 'Non défini' }}
                                 <span style="font-weight: normal; margin: 0 10px;">A :</span>
-                                {{ $user->birthplace ?? 'Lieu de naissance' }}
+                                {{ $user->birthplace ?? 'Non défini' }}
                             </td>
                         </tr>
                         <tr>

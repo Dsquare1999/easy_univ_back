@@ -72,6 +72,10 @@ class User extends Authenticatable
         'cip',
         'attestation_bac',
         'certificat_nationalite',
+        'curriculum_vitae',
+        'diplomes',
+        'autorisation_enseigner',
+        'preuve_experience',
         'address'
     ];
 

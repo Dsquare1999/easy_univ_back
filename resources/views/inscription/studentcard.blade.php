@@ -254,7 +254,7 @@
                         </tr>
                     </table>
 
-                    <div class="year-banner">ANNEE : 2021 - 2022</div>
+                    <div class="year-banner">ANNEE : {{ $classe->academic_year }} - {{ $classe->academic_year + 1 }}</div>
                 </div>
 
                 <!-- VERSO -->

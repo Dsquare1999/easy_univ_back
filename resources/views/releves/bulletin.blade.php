@@ -301,7 +301,7 @@
                                 </td>
                                 <td class="center-text">
                                     @if(isset($note['count_validated']))
-                                        {{ number_format(($note['count_validated'] / ($note['count_validated'] + $note['count_non_validated'])) * 100, 0) }}%
+                                        {{ $note['notes'][$matiere->code] >= 10 ? 100 : 0 }}%
                                     @else
                                         N/A
                                     @endif

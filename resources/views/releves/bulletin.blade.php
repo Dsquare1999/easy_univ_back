@@ -221,10 +221,65 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @php
+                        $moyenne_generale = 0;
+                        $total_total_coeffs = 0;
+                    @endphp
 
                     @foreach($unites as $unite)
+                        @php
+                            // 1. Calculs préliminaires pour cette UE
+                            $total_coeffs = $unite->matieres->sum('coefficient');
+                            
+                            $somme_ponderee = 0;
+                            $credits_valides = 0;
+
+                            foreach($unite->matieres as $m) {
+                                $valeur_note = $note['notes'][$m->code] ?? 0;
+                                
+                                // $somme_ponderee += $valeur_note * $m->coefficient;
+                                $somme_ponderee += $valeur_note;
+
+                                if($valeur_note >= 10) {
+                                    $credits_valides += $m->coefficient;
+                                }
+                            }
+
+                            // $moyenne_ue = $total_coeffs > 0 ? $somme_ponderee / $total_coeffs : 0;
+                            $moyenne_ue = $total_coeffs > 0 ? $somme_ponderee / $unite->matieres->count() : 0;
+                            
+                            $pourcentage = $total_coeffs > 0 ? ($credits_valides / $total_coeffs) * 100 : 0;
+
+                            // Adding general informations
+                            $moyenne_generale += $moyenne_ue * $total_coeffs;
+                            $total_total_coeffs += $total_coeffs;
+
+                        @endphp
+
                         <tr class="ue-group-header">
-                            <th colspan="8">{{ $unite->code }}</th>
+                            <th colspan="2">{{ $unite->code }}</th>
+                            
+                            {{-- Somme des coefficients --}}
+                            <th colspan="1" style="text-align: center;">
+                                {{ $total_coeffs }}
+                            </th>
+
+                            {{-- Moyenne pondérée --}}
+                            <th colspan="1" style="text-align: center;">
+                                {{ number_format($moyenne_ue, 2) }}
+                            </th>
+
+                            {{-- Crédits validés --}}
+                            <th colspan="1" style="text-align: center;">
+                                {{ $credits_valides }}
+                            </th>
+
+                            {{-- Pourcentage --}}
+                            <th colspan="1" style="text-align: center;">
+                                {{ number_format($pourcentage, 2) }}%
+                            </th>
+
+                            <th colspan="5"></th>
                         </tr>
 
                         @foreach($unite->matieres as $matiere)
@@ -242,15 +297,11 @@
                                     @endif
                                 </td>
                                 <td class="center-text">
-                                    @if(isset($note['count_validated']))
-                                        {{ number_format($note['count_validated'], 2) }}
-                                    @else
-                                        N/A
-                                    @endif
+                                    {{ $note['notes'][$matiere->code] >= 10 ? $matiere->coefficient : 0 }}
                                 </td>
                                 <td class="center-text">
                                     @if(isset($note['count_validated']))
-                                        {{ number_format(($note['count_validated']/($note['count_validated'] + $note['count_non_validated'])) * 100, 2) }}%
+                                        {{ number_format(($note['count_validated'] / ($note['count_validated'] + $note['count_non_validated'])) * 100, 0) }}%
                                     @else
                                         N/A
                                     @endif
@@ -272,20 +323,37 @@
                             </tr>
                         @endforeach
                     @endforeach
-                    <!-- ... autres lignes de notes ... -->
                 </tbody>
                 <tfoot>
                     <tr>
                         <td colspan="2"><strong>Total</strong></td>
-                        <td class="center-text"><strong>30</strong></td>
+                        <td class="center-text"><strong>
+                            {{ $somme_coeffs ? $somme_coeffs : 'N/A' }}
+                        </strong></td>
                         <td></td>
-                        <td class="center-text"><strong>30</strong></td>
+                        <td class="center-text"><strong>{{ $totalValidatedCoeff ? $totalValidatedCoeff : 'N/A' }}</strong></td>
                         <td colspan="3"></td>
                     </tr>
                 </tfoot>
             </table>
         </main>
 
+        @php
+            // Utilisation d'une fonction anonyme pour éviter les conflits de nom de fonction globale
+            $calculateGrade = function($moyenne) {
+                if (is_null($moyenne)) return '';
+                if ($moyenne >= 90) return 'A';
+                if ($moyenne >= 80 && $moyenne < 90) return 'B';
+                if ($moyenne >= 70 && $moyenne < 80) return 'C';
+                if ($moyenne >= 60 && $moyenne < 70) return 'D';
+                if ($moyenne >= 50 && $moyenne < 60) return 'E';
+                return 'F';
+            };
+
+            // Calcul de la moyenne finale sécurisé
+            // La logique (x5) est conservée selon votre code original
+            $final_avg_raw = $total_total_coeffs > 0 ? ($moyenne_generale / $total_total_coeffs) * 5 : 0;
+        @endphp
         <!-- 🖋️ Pied de page -->
         <footer class="transcript-footer">
             <p class="grading-scale">
@@ -293,10 +361,10 @@
                 Côte D = entre 60 et 70 Abien - Côte E = entre 50 et 60 Passable Côte F = ajourné
             </p>
             <div class="semester-average">
-                <strong>MOYENNE DU SEMESTRE {{ $year_part }} /100:</strong><span class="average-box">80,82</span>
-                <strong>Côte:</strong><span class="average-box">B</span>
+                <strong>MOYENNE DU SEMESTRE {{ $year_part }} /100:</strong><span class="average-box">{{ number_format($final_avg_raw, 2) }}</span>
+                <strong>Côte:</strong><span class="average-box">{{ $calculateGrade($final_avg_raw) }}</span>
             </div>
-            <p class="decision"><strong>Décision du Conseil des Enseignants:</strong> Admis(e) au semestre {{ $year_part }}</p>
+            <p class="decision"><strong>Décision du Conseil des Enseignants:</strong> {{ $final_avg_raw >= 10 ? 'Admis(e)' : 'Non admis(e)' }}</p>
 
             <table class="signatures-table">
                 <tr>

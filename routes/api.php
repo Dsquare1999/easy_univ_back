@@ -93,9 +93,12 @@ Route::prefix('/v1/classes')->middleware('auth:sanctum', 'ability:' . EasyUnivTo
     Route::get("/show/{id}", [ClasseController::class,"show"]);
     Route::post("/store", [ClasseController::class,"store"]);
     Route::get("/download/{classeId}", [ClasseController::class,"download"]);
+    Route::get("/download-teachers/{classeId}", [ClasseController::class,"downloadTeachers"]);
     Route::get("/export/{id}", [ClasseController::class,"export"]);
+    Route::get("/export-teachers/{id}", [ClasseController::class,"exportTeachers"]);
     Route::get("/promote/{id}", [ClasseController::class,"promote"]);
     Route::post("/import/{classeId}", [ClasseController::class,"import"]);
+    Route::post("/import-teachers/{classeId}", [ClasseController::class,"importTeachers"]);
     Route::match(['put', 'patch'], '/update/{id}',  [ClasseController::class,"update"]);
     Route::delete("/destroy/{id}",  [ClasseController::class,"destroy"]);
 });

@@ -122,6 +122,11 @@ class StudentController extends Controller
             $filiere    = Filiere::findOrFail($classe->filiere);
 
             foreach ($classe->matieres as $matiere) {
+                # verify if there is not already a releve for this student and matiere
+                $releve = Releve::where('student', $student->id)->where('matiere', $matiere->id)->first();
+                if ($releve) {
+                    continue;
+                }
                 Releve::create([
                     'student'   => $student->id,
                     'matiere'   => $matiere->id,

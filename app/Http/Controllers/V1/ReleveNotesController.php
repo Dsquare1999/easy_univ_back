@@ -17,7 +17,7 @@ class ReleveNotesController extends Controller
     /**
      * Handle the incoming request.
      */
-    public function __invoke($cycle, $filiere, $classe, $unites, $notes, $meansPerMatiere, $year_part)
+    public function __invoke($cycle, $filiere, $classe, $unites, $notes, $meansPerMatiere, $year_part, $somme_coeffs, $totalValidatedCoeff)
     {
 
         if (Storage::directoryMissing('releves')){
@@ -29,9 +29,8 @@ class ReleveNotesController extends Controller
 
         $cycleName   = Str::slug($cycle->name, '_');
         $filiereName = Str::slug($filiere->name, '_');
-        $classeName  = Str::slug($classe->name, '_');
         
-        $filename = 'releve_' . $cycleName . '_' . $filiereName . '_' . $classeName . '_semester_' . $year_part . '_' . now()->format('YmdHis') . '.pdf';
+        $filename = 'releve_' . $cycleName . '_' . $filiereName . '_semester_' . $year_part . '_' . now()->format('YmdHis') . '.pdf';
         $success = true;
         $filepath = Storage::disk('public')->path('releves/' . $filename);
         try {
@@ -52,18 +51,17 @@ class ReleveNotesController extends Controller
 
 
         try {
-            Log::info("Génération des bulletins pour le cycle: {$cycle->name}, filière: {$filiere->name}, classe: {$classe->name}");
+            Log::info("Génération des bulletins pour le cycle: {$cycle->name}, filière: {$filiere->name}");
             foreach ($notes as $note) {
                 Log::info("Génération du bulletin. Unites : " . $unites);
                 $studentName = Str::slug($note['name'], '_');
-                $bulletinName = "bulletin_{$studentName}_{$cycleName}_{$filiereName}_{$classeName}_semester_{$year_part}.pdf";
+                $bulletinName = "bulletin_{$studentName}_{$cycleName}_{$filiereName}_semester_{$year_part}.pdf";
                 $bulletinPath = Storage::disk('public')->path("bulletins/{$bulletinName}");
                 $relativePath = "bulletins/{$bulletinName}";
                 $disk = Storage::disk('public');
 
                 if ($disk->exists($relativePath)) {
                     $disk->delete($relativePath);
-                    Log::info("Ancien bulletin supprimé : " . $relativePath);
                 }
 
                 PDF::loadview('releves.bulletin', [
@@ -72,12 +70,13 @@ class ReleveNotesController extends Controller
                     'classe' => $classe,
                     'unites' => $unites,
                     'note' => $note,
-                    'year_part' => $year_part
+                    'year_part' => $year_part,
+                    'somme_coeffs' => $somme_coeffs,
+                    'totalValidatedCoeff' => $totalValidatedCoeff
                 ])
                 ->save($path = $bulletinPath);
-
+                
                 $publicUrl = Storage::url('bulletins/' . $bulletinName);
-                Log::info("Bulletin généré avec succès: " . $publicUrl);
                 event(new DocumentCreated($note['student'], $note['user'], 'Bulletin Semestre ' . $year_part, $publicUrl, 'pdf', auth()->id()));
             }
         } catch (\Throwable $th) {

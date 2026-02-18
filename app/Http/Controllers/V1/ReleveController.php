@@ -445,12 +445,13 @@ class ReleveController extends Controller
             }
             
             $meansPerMatiere = $this->generalMeanPerMatiere($notes, $matieres);
+            $totalValidatedCoeff = array_sum(array_column($notes, 'count_validated'));
 
             $cycle   = Cycle::findOrFail($classe->cycle);
             $filiere = Filiere::findOrFail($classe->filiere);
 
             $relevesNotesController = new ReleveNotesController();
-            $pdfresponse = $relevesNotesController($cycle, $filiere, $classe, $unites, $notes, $meansPerMatiere, $year_part);
+            $pdfresponse = $relevesNotesController($cycle, $filiere, $classe, $unites, $notes, $meansPerMatiere, $year_part, $somme_coeffs, $totalValidatedCoeff);
 
             return response()->json([
                 'success' => true,

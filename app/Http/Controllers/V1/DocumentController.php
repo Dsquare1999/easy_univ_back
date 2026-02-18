@@ -15,7 +15,6 @@ class DocumentController extends Controller
     public function index()
     {
         try {
-
             $classe = request()->query('classe');
             $filiere = request()->query('filiere');
             $cycle = request()->query('cycle');
@@ -32,19 +31,19 @@ class DocumentController extends Controller
             }
             if ($year) {
                 $query->where('year', $year);
-            }   
-            $sub = Document::selectRaw('MAX(created_at) as latest_date, classe, student, tag')
-                ->groupBy('classe', 'student', 'tag');
+            }
+            $sub = Document::selectRaw('MAX(created_at) as latest_date, classe, student, tag, path')
+                ->groupBy('classe', 'student', 'tag', 'path');
 
             $query->joinSub($sub, 'latest_docs', function ($join) {
                 $join->on('documents.classe', '=', 'latest_docs.classe')
                     ->on('documents.student', '=', 'latest_docs.student')
                     ->on('documents.tag', '=', 'latest_docs.tag')
+                    ->on('documents.path', '=', 'latest_docs.path')
                     ->on('documents.created_at', '=', 'latest_docs.latest_date');
             });
 
             $documents = $query->get(['documents.*']);
-            
 
             return response()->json([
                 'success' => true,

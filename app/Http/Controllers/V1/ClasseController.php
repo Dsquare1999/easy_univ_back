@@ -322,9 +322,12 @@ class ClasseController extends Controller
 
             $classe = Classe::findOrFail($classeId);
             $tag = Tag::where('fee', 0)->first();
+            $tag_BRS = Tag::where('name', 'BRS')->first();
+            $tag_ATP = Tag::where('name', 'ATP')->first();
+            $tag_SPR = Tag::where('name', 'SPR')->first();
 
-            if (!$tag) {
-                throw new \Exception("Tag avec frais 0 non trouvé");
+            if (!$tag_BRS || !$tag_ATP || !$tag_SPR) {
+                throw new \Exception("Certains tags requis (BRS, ATP, SPR) ne sont pas trouvés");
             }
 
             $file = $request->file('file');
@@ -388,9 +391,17 @@ class ClasseController extends Controller
                         'type' => 0
                     ];
 
+                    $userTag = $tag_ATP;
+                    if ($row[6] === 'BRS') {
+                        $userTag = $tag_BRS;
+                    } elseif ($row[6] === 'SPR') {
+                        $userTag = $tag_SPR;
+                    }
+
                     if(User::where('email', $userData['email'])->exists()) {
                         $existingUser = User::where('email', $userData['email'])->first();
                         $userData['password'] = $existingUser->password; 
+                        $userTag = $existingUser->tags()->first();
                     } else {
                         $userData['password'] = bcrypt('password'); 
                     }
@@ -410,7 +421,7 @@ class ClasseController extends Controller
                         $student = Student::create([
                             'user' => $user->id,
                             'classe' => $classeId,
-                            'tag' => $tag->id,
+                            'tag' => $userTag->id,
                             'titre' => $row[6] ?? 'ATP', // Titre par défaut
                             'statut' => 'PRE-INSCRIT'
                         ]);

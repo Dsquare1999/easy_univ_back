@@ -43,6 +43,7 @@ class UpdateClasseRequest extends FormRequest
             ],
             'parts'          => ['required', 'in:SEM,TRI'],
             'academic_year'  => ['required'],
+            'fee'            => ['required'],
         ];
 
         if ($method !== 'PUT') {
@@ -66,7 +67,8 @@ class UpdateClasseRequest extends FormRequest
             'year.min'               => 'L\'année doit être au moins 1.',
             'parts.required'         => 'Le champ parties est requis.',
             'parts.in'               => 'Le champ parties doit être soit SEM, soit TRI.',
-            'academic_year.required' => 'Le champ année académique est requis.'
+            'academic_year.required' => 'Le champ année académique est requis.',
+            'fee.required'           => 'Les frais de la classe sont requis.',
         ];
     }
 }

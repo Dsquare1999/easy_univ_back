@@ -253,7 +253,16 @@
                     <tr>
                         <td class="value-box-grid">{{ $student->titre }}</td>
                         {{-- Utilise un helper pour formater les montants --}}
-                        <td class="value-box-grid">{{ number_format($tag->fee ?? 415000, 2, ',', ' ') }} FCFA</td>
+                        <td class="value-box-grid">
+                            {{-- Calcul de la scolarité ajustée selon le type de tag --}}
+                            @if($tag->type === 'amount')
+                                {{ number_format(($classe->fee - $tag->fee) ?? 415000, 2, ',', ' ') }} FCFA
+                            @elseif($tag->type === 'percentage')
+                                {{ number_format(($classe->fee - ($classe->fee * $tag->fee / 100)) ?? 415000, 2, ',', ' ') }} FCFA
+                            @else
+                                {{ number_format($tag->fee ?? 415000, 2, ',', ' ') }} FCFA
+                            @endif
+                        </td>
                         <td class="value-box-grid">{{ number_format($student->due_amount ?? 0, 2, ',', ' ') }} FCFA</td>
                     </tr>
                 </tbody>

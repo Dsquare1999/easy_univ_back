@@ -105,9 +105,6 @@ class FichePreInscriptionController extends Controller
         $timestamp = now()->format('YmdHis');
         
         $baseFilename = "{$safeUserName}_{$timestamp}";
-        // $userFullName = str_replace(' ', '_', strtolower($user->firstname.' '.$user->lastname));
-        // $cycleName = str_replace(' ', '_', strtolower($cycle->name));
-        // $filiereName = str_replace(' ', '_', strtolower($filiere->name));
         $cycleName = Str::slug(Str::ascii($cycle->name), '_');
         $filiereName = Str::slug(Str::ascii($filiere->name), '_');
         $userFullName = Str::slug(Str::ascii($user->firstname.' '.$user->lastname), '_');

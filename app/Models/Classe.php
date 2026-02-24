@@ -19,7 +19,7 @@ class Classe extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['filiere', 'cycle', 'year', 'academic_year', 'parts', 'status'];
+    protected $fillable = ['filiere', 'cycle', 'year', 'academic_year', 'parts', 'status', 'fee'];
 
     public $incrementing = false; 
     protected $keyType = 'string';

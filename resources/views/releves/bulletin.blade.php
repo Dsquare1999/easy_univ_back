@@ -57,16 +57,26 @@
             text-decoration: underline;
             margin: 1.5rem 0;
         }
+        /* 🆔 Section Identité, reconstruite avec une table */
+        .student-photo {
+            width: 25mm;
+            height: 28mm;
+            object-fit: cover;
+            object-position: center center;
+        }
 
         /** 👤 Les infos de l'étudiant, maintenant une table à 2 colonnes. */
         .student-info-table {
+            font-size: 12px;
             width: 100%;
             margin-bottom: 2rem;
         }
         .student-info-table td {
-            width: 50%;
             vertical-align: top;
             padding: 0 1rem;
+        }
+        .student-info-table td.student-photo-cell {
+            padding: 0;
         }
         .student-info-table p {
             margin: 3px 0;
@@ -77,6 +87,7 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 1rem;
+            font-size: 10px;
         }
         .grades-table th, .grades-table td {
             border: 1px solid #333;
@@ -89,8 +100,10 @@
             font-weight: bold;
             text-align: center;
         }
-        .grades-table td.center-text { text-align: center; }
-        .grades-table tfoot td { background-color: #f8f8f8; }
+        .grades-table td.center-text, .grades-table th.center-text { text-align: center; }
+        .grades-table tfoot td { 
+            background-color: #f8f8f8; 
+        }
         .ue-group-header th {
             background-color: #e9e9e9;
             font-style: italic;
@@ -99,10 +112,25 @@
         }
 
         /** 🖋️ Le pied de page. */
-        .transcript-footer { font-size: 0.9em; }
+        .transcript-footer { 
+            font-size: 0.9em; 
+        }
+        .transcript-footer > table {
+            width: 100%;
+            align-items: flex-start;
+        }
+        .transcript-footer > table > tbody > tr > td:first-child {
+            flex: 1;
+            padding-right: 20px;
+        }
+        .transcript-footer > table > tbody > tr > td:last-child {
+            flex: 0 0 auto;
+            text-align: center;
+            padding-left: 10px;
+        }
         .grading-scale { font-size: 0.8em; text-align: center; margin-bottom: 1.5rem; }
         .semester-average { text-align: center; margin-bottom: 1.5rem; font-size: 1.1em; }
-        .average-box { display: inline-block; border: 1px solid #333; padding: 5px 15px; margin: 0 10px; }
+        .average-box { display: inline-block; border: 1px solid #333; padding: 5px 15px; margin: 0 10px; position: relative; bottom: -10px; }
         .decision { text-align: center; font-size: 1.1em; margin-bottom: 2rem; }
         .footer-contact { text-align: center; margin-top: 2rem; font-size: 0.8em; border-top: 1px solid #ccc; padding-top: 0.5rem; }
 
@@ -182,13 +210,20 @@
                 </div></td>
             </tr>
         </table>
-
+ 
         <main class="transcript-body">
             <h1 class="main-title">BULLETIN DE NOTES</h1>
 
             <!-- 👤 Infos de l'étudiant -->
             <table class="student-info-table">
                 <tr>
+                    <td class="student-photo-cell">
+                        @if(isset($note['user']->profile) && $note['user']->profile && file_exists(public_path('storage/' . $note['user']->profile)))
+                            <img src="{{ public_path('storage/' . $note['user']->profile) }}" alt="Photo de l'étudiant" class="student-photo"/>
+                        @else
+                            <img src="{{ public_path('storage/user_placeholder.jpg') }}" alt="Photo de l'étudiant" class="student-photo"/>
+                        @endif
+                    </td>
                     <td>
                         <p><strong>Cycle :</strong> {{ $cycle->name }}</p>
                         <p><strong>Filière :</strong> {{ $filiere->name }}</p>
@@ -210,10 +245,9 @@
             <table class="grades-table">
                 <thead>
                     <tr>
-                        <th>Code</th>
-                        <th>Unités d'Enseignement (UE)</th>
+                        <th>Code - UE</th>
                         <th>Nombre de crédits</th>
-                        <th>Note /100</th>
+                        <th>Note /20</th>
                         <th>Nombre de crédits validés</th>
                         <th>Pourcentage de crédit</th>
                         <th>Point</th>
@@ -224,6 +258,16 @@
                     @php
                         $moyenne_generale = 0;
                         $total_total_coeffs = 0;
+                        $total_coeffs_valides = 0;
+
+                        $calculateGrade = function($moyenne) {
+                            if (is_null($moyenne)) return '';
+                            if ($moyenne >= 16) return 'A';
+                            if ($moyenne >= 14 && $moyenne < 16) return 'B';
+                            if ($moyenne >= 12 && $moyenne < 14) return 'C';
+                            if ($moyenne >= 10 && $moyenne < 12) return 'D';
+                            return 'E';
+                        };
                     @endphp
 
                     @foreach($unites as $unite)
@@ -253,45 +297,47 @@
                             // Adding general informations
                             $moyenne_generale += $moyenne_ue * $total_coeffs;
                             $total_total_coeffs += $total_coeffs;
+                            $total_points = $moyenne_generale * $total_coeffs;
+                            $total_coeffs_valides += $credits_valides;
 
                         @endphp
 
                         <tr class="ue-group-header">
-                            <th colspan="2">{{ $unite->code }}</th>
+                            <th colspan="1">{{ $unite->code }} - {{ $unite->name }}</th>
                             
                             {{-- Somme des coefficients --}}
-                            <th colspan="1" style="text-align: center;">
+                            <th colspan="1" class="center-text">
                                 {{ $total_coeffs }}
                             </th>
 
                             {{-- Moyenne pondérée --}}
-                            <th colspan="1" style="text-align: center;">
-                                {{ number_format($moyenne_ue, 2) }}
+                            <th colspan="1" class="center-text">
+                                {{ number_format($moyenne_ue, 2, ',', '.') }}
                             </th>
 
                             {{-- Crédits validés --}}
-                            <th colspan="1" style="text-align: center;">
+                            <th colspan="1" class="center-text">
                                 {{ $credits_valides }}
                             </th>
 
                             {{-- Pourcentage --}}
-                            <th colspan="1" style="text-align: center;">
-                                {{ number_format($pourcentage, 2) }}%
+                            <th colspan="1" class="center-text">
+                                {{ number_format($pourcentage, 2, ',', '.') }}%
                             </th>
 
-                            <th colspan="5"></th>
+                            <th colspan="1" class="center-text">{{ number_format($total_points, 2, ',', '.') }}</th>
+                            <th colspan="1" class="center-text">{{ $calculateGrade($moyenne_ue) }}</th>
                         </tr>
-
                         @foreach($unite->matieres as $matiere)
                             <tr>
-                                <td>{{ $matiere->code }}</td>
-                                <td>{{ $matiere->name }}</td>
+                                <td>{{ $matiere->code }} - {{ $matiere->name }}</td>
+                                <!-- <td>{{ $matiere->name }}</td> -->
                                 <td class="center-text">
                                     {{ $matiere->coefficient }}
                                 </td>
                                 <td class="center-text">
                                     @if(isset($note['notes'][$matiere->code]))
-                                        {{ number_format($note['notes'][$matiere->code], 2) }}
+                                        {{ number_format($note['notes'][$matiere->code], 2, ',', '.') }}
                                     @else
                                         N/A
                                     @endif
@@ -301,21 +347,21 @@
                                 </td>
                                 <td class="center-text">
                                     @if(isset($note['count_validated']))
-                                        {{ $note['notes'][$matiere->code] >= 10 ? 100 : 0 }}%
+                                        {{ $note['notes'][$matiere->code] >= 10 ? number_format(($matiere->coefficient/$total_coeffs)*100, 2, ',', '.') : 0 }}%
                                     @else
                                         N/A
                                     @endif
                                 </td>
                                 <td class="center-text">
-                                    @if(isset($note['points'][$matiere->code]))
-                                        {{ number_format($note['count_validated'] * $matiere->coefficient, 2) }}
+                                    @if($note['notes'][$matiere->code] >= 10)
+                                        {{ number_format($note['notes'][$matiere->code] * $matiere->coefficient, 2, ',', '.') }}
                                     @else
-                                        N/A
+                                        0
                                     @endif
                                 </td>
                                 <td class="center-text">
-                                    @if(isset($note['cote']))
-                                        {{ $note['cote'] }}
+                                    @if(isset($note['notes'][$matiere->code]))
+                                        {{ $calculateGrade($note['notes'][$matiere->code])}}
                                     @else
                                         N/A
                                     @endif
@@ -326,45 +372,53 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="2"><strong>Total</strong></td>
+                        <td colspan="1"><strong>Total</strong></td>
                         <td class="center-text"><strong>
                             {{ $somme_coeffs ? $somme_coeffs : 'N/A' }}
                         </strong></td>
                         <td></td>
-                        <td class="center-text"><strong>{{ $totalValidatedCoeff ? $totalValidatedCoeff : 'N/A' }}</strong></td>
-                        <td colspan="3"></td>
+                        <td colspan="1" class="center-text"><strong>{{ $total_coeffs_valides }}</strong></td>
+                        <td colspan="1" class="center-text"><strong>{{ number_format(($total_coeffs_valides/$total_total_coeffs)*100, 2, ',', '.') }}%</strong></td>
+                        <td colspan="2"></td>
                     </tr>
                 </tfoot>
             </table>
         </main>
 
         @php
-            // Utilisation d'une fonction anonyme pour éviter les conflits de nom de fonction globale
-            $calculateGrade = function($moyenne) {
-                if (is_null($moyenne)) return '';
-                if ($moyenne >= 90) return 'A';
-                if ($moyenne >= 80 && $moyenne < 90) return 'B';
-                if ($moyenne >= 70 && $moyenne < 80) return 'C';
-                if ($moyenne >= 60 && $moyenne < 70) return 'D';
-                if ($moyenne >= 50 && $moyenne < 60) return 'E';
-                return 'F';
-            };
-
             // Calcul de la moyenne finale sécurisé
-            // La logique (x5) est conservée selon votre code original
-            $final_avg_raw = $total_total_coeffs > 0 ? ($moyenne_generale / $total_total_coeffs) * 5 : 0;
+            $final_avg_raw = $total_total_coeffs > 0 ? ($moyenne_generale / $total_total_coeffs) : 0;
         @endphp
         <!-- 🖋️ Pied de page -->
         <footer class="transcript-footer">
-            <p class="grading-scale">
-                Côte A > 90/100 Excellent - Côte B = entre 80 et 90 Tbien - Côte C = entre 70 et 80 Bien<br>
-                Côte D = entre 60 et 70 Abien - Côte E = entre 50 et 60 Passable Côte F = ajourné
-            </p>
-            <div class="semester-average">
-                <strong>MOYENNE DU SEMESTRE {{ $year_part }} /100:</strong><span class="average-box">{{ number_format($final_avg_raw, 2) }}</span>
-                <strong>Côte:</strong><span class="average-box">{{ $calculateGrade($final_avg_raw) }}</span>
-            </div>
-            <p class="decision"><strong>Décision du Conseil des Enseignants:</strong> {{ $final_avg_raw >= 10 ? 'Admis(e)' : 'Non admis(e)' }}</p>
+            <table>
+                <tr>
+                    <td>
+                        <p class="grading-scale">
+                            Côte A > 16/20 Très-Bien - Côte B = entre 14 et 15,99 Bien - Côte C = entre 12 et 13,99 Assez-Bien<br>
+                            Côte D = entre 10 et 11,99 - Côte E = moins de 10 Ajourné
+                        </p>
+                        <div class="semester-average">
+                            <strong>MOYENNE DU SEMESTRE {{ $year_part }} /20:</strong><span class="average-box">{{ number_format($final_avg_raw, 2, ',', '.') }}</span>
+                            <strong>Côte:</strong><span class="average-box">{{ $calculateGrade($final_avg_raw) }}</span>
+                        </div>
+                        <p class="decision"><strong>Décision du Conseil des Enseignants:</strong> 
+                            @if($final_avg_raw >= 12)
+                                ADMIS(E)
+                            @elseif($final_avg_raw >= 10)
+                                REPRISE
+                            @else
+                                AJOURNÉ(E)
+                            @endif
+                        </p>
+                    </td>
+                    <td>
+                        <div style="border: 1px solid #ccc; padding: 10px; display: inline-block;">
+                            <img src="{{ $qrCodePath }}" alt="Code QR de certification" style="width: 100px; height: 100px; opacity: 0.7;"/>
+                        </div>
+                    </td>
+                </tr>
+            </table>
 
             <table class="signatures-table">
                 <tr>

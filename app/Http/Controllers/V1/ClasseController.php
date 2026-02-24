@@ -32,15 +32,7 @@ class ClasseController extends Controller
     {
         try {
 
-            // $user = Auth()->user();
-            
-            // $my_class_ids = Student::where('user', $user->id)->pluck('classe')->toArray();
             $classes = Classe::all();
-
-            // $classes->transform(function ($classe) use ($my_class_ids) {
-            //     $classe->registered = in_array($classe->id, $my_class_ids);
-            //     return $classe;
-            // });
 
             return response()->json([
                 'success' => true,

@@ -43,11 +43,13 @@ class UpdateTagRequest extends FormRequest
             return [
                 'name' => ['required', 'string', 'max:255'],
                 'fee' => ['required', 'numeric'],
+                'type' => ['required', 'in:percentage,amount'],
             ];
         }else{
             return [
                 'name' => ['sometimes', 'required', 'string', 'max:255'],
                 'fee' => ['sometimes', 'required', 'numeric'],
+                'type' => ['sometimes', 'required', 'in:percentage,amount'],
             ];
         }
     }
@@ -64,6 +66,8 @@ class UpdateTagRequest extends FormRequest
             '*.required'            => 'Le nom du Tag est requis.',
             'name.max'              => 'Le nom du Tag ne doit pas dépasser 255 caractères.',
             'fee.required'          => 'Le montant du Tag est requis.',
+            'type.required'         => 'Le type du Tag est requis.',
+            'type.in'               => 'Le type du Tag doit être soit percentage, soit amount.',
         ];
     }
 

@@ -55,6 +55,7 @@ class StoreClasseRequest extends FormRequest
             ],
             'parts'          => 'required|in:SEM,TRI',
             'academic_year'  => 'required|string',
+            'fee'  => 'required|numeric',
         ];
     }
 
@@ -72,6 +73,7 @@ class StoreClasseRequest extends FormRequest
             'filiere.exists'         => 'Le champ filiere est invalide.',
             'cycle.exists'           => 'Le champ cycle est invalide.',
             'number.unique'          => 'L\'année doit être un entier.',
+            'fee.required'           => 'Les frais de la classe sont requis.',
         ];
     }
 }

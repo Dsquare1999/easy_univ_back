@@ -368,14 +368,13 @@ class ReleveController extends Controller
             $matieres = $classe->matieres;
             Log::info("Matieres: " . $matieres);
             $matieres = $matieres->where('year_part', $year_part);
-            Log::info("Matieres filtrées par year_part {$year_part}: " . $matieres);
             
             $uniteIds = $matieres->pluck('unite')->filter()->unique()->values()->all();
 
             Log::info("Unite IDs: " . implode(', ', $uniteIds));
             $unites = Unite::with(['matieres' => function($q) use ($matieres) {
                 $q->whereIn('id', $matieres->pluck('id'));
-            }])->whereIn('id', $uniteIds)->get();
+            }])->whereIn('id', $uniteIds)->orderBy('code', 'asc')->get();
 
             $students = $classe->students;
 
@@ -399,8 +398,6 @@ class ReleveController extends Controller
 
                 foreach ($releves as $releve) {
                     if ($releve->student == $student->id) {
-                        Log::info("Relevé " . $releve);
-
                         // Calcul de la moyenne de la matière
                         $moyenne = ($releve->exam1 + $releve->exam2 + $releve->partial) / 3;
                         if ($releve->remedial) {
@@ -413,15 +410,10 @@ class ReleveController extends Controller
                         } else {
                             $count_validated++;
                         }
-                        Log::info("Moyenne pour le relevé " . $moyenne);
-
                         $matiere = Matiere::find($releve->matiere);
                         if (!$matiere) {
-                            Log::info("Matière non trouvée pour le relevé " . $releve->id);
                             continue;
                         }
-                        Log::info("Matiere en question et code: " . $matiere->code);
-
                         $note['notes'][$matiere->code] = $moyenne;
 
                         // Pour la moyenne générale
@@ -445,13 +437,13 @@ class ReleveController extends Controller
             }
             
             $meansPerMatiere = $this->generalMeanPerMatiere($notes, $matieres);
-            $totalValidatedCoeff = array_sum(array_column($notes, 'count_validated'));
 
             $cycle   = Cycle::findOrFail($classe->cycle);
             $filiere = Filiere::findOrFail($classe->filiere);
+            $qrCodePath = $this->generateQrCode("Bulletin de ".$user->firstname . " " . $user->lastname." émis le ".now()->format('d/m/Y'), "Bulletin QR Code ".$user->email);
 
             $relevesNotesController = new ReleveNotesController();
-            $pdfresponse = $relevesNotesController($cycle, $filiere, $classe, $unites, $notes, $meansPerMatiere, $year_part, $somme_coeffs, $totalValidatedCoeff);
+            $pdfresponse = $relevesNotesController($cycle, $filiere, $classe, $unites, $notes, $meansPerMatiere, $year_part, $somme_coeffs, $qrCodePath);
 
             return response()->json([
                 'success' => true,
@@ -504,14 +496,35 @@ class ReleveController extends Controller
      */
     private function getCote($moyenne)
     {
-        $moyenne *= 5;
         if (is_null($moyenne)) return null;
-        if ($moyenne >= 90) return 'A';
-        if ($moyenne >= 80) return 'B';
-        if ($moyenne >= 70) return 'C';
-        if ($moyenne >= 60) return 'D';
-        if ($moyenne >= 50) return 'E';
-        return 'F';
+        if ($moyenne >= 16) return 'A';
+        if ($moyenne >= 14) return 'B';
+        if ($moyenne >= 12) return 'C';
+        if ($moyenne >= 10) return 'D';
+        return 'E';
+    }
+
+    private function generateQrCode(string $data, string $filename): ?string
+    {
+        try {
+            $qrData = urlencode($data);
+            $apiUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={$qrData}";
+            $qrCodePngData = @file_get_contents($apiUrl);
+
+            if ($qrCodePngData === false) {
+                throw new \Exception("Impossible de contacter l'API du QR Code");
+            }
+
+            $qrCodeStoragePath = 'qrcodes/' . $filename;
+            Storage::disk('public')->put($qrCodeStoragePath, $qrCodePngData);
+            
+            $absolutePath = Storage::disk('public')->path($qrCodeStoragePath);
+            return $absolutePath;
+
+        } catch (\Exception $e) {
+            Log::error("Erreur génération QR Code: " . $e->getMessage());
+            return null;
+        }
     }
 
 

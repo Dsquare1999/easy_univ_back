@@ -17,7 +17,7 @@ class ReleveNotesController extends Controller
     /**
      * Handle the incoming request.
      */
-    public function __invoke($cycle, $filiere, $classe, $unites, $notes, $meansPerMatiere, $year_part, $somme_coeffs, $totalValidatedCoeff)
+    public function __invoke($cycle, $filiere, $classe, $unites, $notes, $meansPerMatiere, $year_part, $somme_coeffs, $qrCodePath)
     {
 
         if (Storage::directoryMissing('releves')){
@@ -30,7 +30,7 @@ class ReleveNotesController extends Controller
         $cycleName   = Str::slug($cycle->name, '_');
         $filiereName = Str::slug($filiere->name, '_');
         
-        $filename = 'releve_' . $cycleName . '_' . $filiereName . '_semester_' . $year_part . '_' . now()->format('YmdHis') . '.pdf';
+        $filename = 'releve_' . $cycleName . '_' . $filiereName . '_semester_' . $classe->academic_year . '_' . $year_part . '_' . now()->format('YmdHis') . '.pdf';
         $success = true;
         $filepath = Storage::disk('public')->path('releves/' . $filename);
         try {
@@ -55,7 +55,7 @@ class ReleveNotesController extends Controller
             foreach ($notes as $note) {
                 Log::info("Génération du bulletin. Unites : " . $unites);
                 $studentName = Str::slug($note['name'], '_');
-                $bulletinName = "bulletin_{$studentName}_{$cycleName}_{$filiereName}_semester_{$year_part}.pdf";
+                $bulletinName = "bulletin_{$studentName}_{$cycleName}_{$filiereName}_{$classe->academic_year}_semester_{$year_part}.pdf";
                 $bulletinPath = Storage::disk('public')->path("bulletins/{$bulletinName}");
                 $relativePath = "bulletins/{$bulletinName}";
                 $disk = Storage::disk('public');
@@ -72,7 +72,7 @@ class ReleveNotesController extends Controller
                     'note' => $note,
                     'year_part' => $year_part,
                     'somme_coeffs' => $somme_coeffs,
-                    'totalValidatedCoeff' => $totalValidatedCoeff
+                    'qrCodePath' => $qrCodePath
                 ])
                 ->save($path = $bulletinPath);
                 

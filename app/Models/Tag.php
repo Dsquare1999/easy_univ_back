@@ -10,7 +10,7 @@ class Tag extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'slug', 'fee'];
+    protected $fillable = ['name', 'slug', 'fee', 'type'];
 
     public $incrementing = false; 
     protected $keyType = 'string';  

@@ -399,7 +399,7 @@ class ReleveController extends Controller
                 foreach ($releves as $releve) {
                     if ($releve->student == $student->id) {
                         // Calcul de la moyenne de la matière
-                        $moyenne = ($releve->exam1 + $releve->exam2 + $releve->partial) / 3;
+                        $moyenne = ((($releve->exam1 + $releve->exam2) / 2) * 0.4) + ($releve->partial * 0.6);
                         if ($releve->remedial) {
                             $moyenne = $releve->remedial;
                         }

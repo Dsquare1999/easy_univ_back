@@ -440,7 +440,7 @@ class ReleveController extends Controller
 
             $cycle   = Cycle::findOrFail($classe->cycle);
             $filiere = Filiere::findOrFail($classe->filiere);
-            $qrCodePath = $this->generateQrCode("Bulletin de ".$user->firstname . " " . $user->lastname." émis le ".now()->format('d/m/Y'), "Bulletin QR Code ".$user->email);
+            $qrCodePath = $this->generateQrCode("Bulletin émis le ".now()->format('d/m/Y'), "Bulletin QR Code");
 
             $relevesNotesController = new ReleveNotesController();
             $pdfresponse = $relevesNotesController($cycle, $filiere, $classe, $unites, $notes, $meansPerMatiere, $year_part, $somme_coeffs, $qrCodePath);

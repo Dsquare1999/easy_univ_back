@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Bulletin de Notes - EPUMA</title>
+    <title>Relevé de Notes - EPUMA</title>
     <style>
         @page {
             margin: 15mm;
@@ -212,7 +212,7 @@
         </table>
  
         <main class="transcript-body">
-            <h1 class="main-title">BULLETIN DE NOTES</h1>
+            <h1 class="main-title">RELEVÉ DE NOTES</h1>
 
             <!-- 👤 Infos de l'étudiant -->
             <table class="student-info-table">

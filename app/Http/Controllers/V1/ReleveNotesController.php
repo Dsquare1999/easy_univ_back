@@ -41,7 +41,8 @@ class ReleveNotesController extends Controller
                 'unites' => $unites,
                 'notes' => $notes,
                 'meansPerMatiere' => $meansPerMatiere,
-                'year_part' => $year_part
+                'year_part' => $year_part,
+                'qrCodePath' => $qrCodePath
             ])->setPaper('a4', 'landscape')
             ->save($path = $filepath);
         } catch (\Throwable $th) {
@@ -53,7 +54,6 @@ class ReleveNotesController extends Controller
         try {
             Log::info("Génération des bulletins pour le cycle: {$cycle->name}, filière: {$filiere->name}");
             foreach ($notes as $note) {
-                Log::info("Génération du bulletin. Unites : " . $unites);
                 $studentName = Str::slug($note['name'], '_');
                 $bulletinName = "bulletin_{$studentName}_{$cycleName}_{$filiereName}_{$classe->academic_year}_semester_{$year_part}.pdf";
                 $bulletinPath = Storage::disk('public')->path("bulletins/{$bulletinName}");

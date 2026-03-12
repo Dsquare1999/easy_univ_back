@@ -111,7 +111,13 @@
             border-top: 1px solid #000;
         }
         .footer-date-cell { text-align: left; vertical-align: bottom; }
-        .footer-signature-cell { text-align: center; vertical-align: bottom; }
+        .footer-signature-cell { 
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            text-align: center; 
+            vertical-align: bottom; 
+        }
     </style>
 </head>
 <body>
@@ -133,6 +139,10 @@
                 <td class="header-right-cell">
                     <p><strong>Année universitaire :</strong> {{ $classe->academic_year }}-{{ $classe->academic_year + 1 }}</p>
                     <p><strong>Semestre :</strong> Semestre {{ $year_part == 1 ? 'I' : 'II' }}</p>
+                    @php
+                        $semesterNumber = ($classe->year - 1) * 2 + $year_part;
+                    @endphp
+                    <p><strong>N°LS{{ $semesterNumber }}-........./PDG/DE-EPUMA/SAF/SA</strong></p>
                 </td>
             </tr>
         </table>
@@ -164,10 +174,10 @@
                     @foreach ($notes as $note)
                         <tr class="{{ $loop->even ? 'zebra-stripe' : '' }}">
                             <td>{{ $loop->iteration }}</td>
-                            <td class="student-name-col">{{ $note['name'] }}</td>
+                            <td class="student-name-col" style="text-align: left;">{{ $note['name'] }}</td>
                             @foreach($unites as $unite)
                                 @foreach($unite->matieres as $matiere)
-                                    <td>
+                                    <td style="{{ isset($note['notes'][$matiere->code]) && $note['notes'][$matiere->code] < 10 ? 'color: red;' : '' }}">
                                         @if(isset($note['notes'][$matiere->code]))
                                             {{ number_format($note['notes'][$matiere->code], 2) }}
                                         @else
@@ -176,7 +186,7 @@
                                     </td>
                                 @endforeach
                             @endforeach
-                            <td class="summary-col student-average">
+                            <td class="summary-col student-average" style="{{ isset($note['moyenne']) && $note['moyenne'] < 10 ? 'color: red;' : '' }}">
                                 @if(isset($note['moyenne']))
                                     {{ number_format($note['moyenne'], 2) }}
                                 @else
@@ -193,34 +203,20 @@
                         </tr>
                     @endforeach
                 </tbody>
-                <!-- <tfoot>
-                    <tr class="class-average-row">
-                        <td colspan="2"><strong>MOYENNE DE LA CLASSE</strong></td>
-                        @foreach($unites as $unite)
-                            @foreach($unite->matieres as $matiere)
-                                <td>
-                                    <strong>
-                                        @if(isset($meansPerMatiere[$matiere->code]))
-                                            {{ number_format($meansPerMatiere[$matiere->code] ?? 0, 2) }}
-                                        @else
-                                            N/A
-                                        @endif
-                                    </strong>
-                                </td>
-                            @endforeach
-                        @endforeach
-                        <td colspan="2"></td>
-                    </tr>
-                </tfoot> -->
             </table>
         </main>
         
         <!-- 🖋️ Pied de page -->
         <table class="footer-table">
             <tr>
-                <td class="footer-date-cell">Fait à Porto-Novo, le {{ now()->format('d') }} / {{ now()->format('m') }} / {{ now()->format('Y') }}</td>
+                <td class="footer-date-cell">
+                    <div style="border: 1px solid #ccc; padding: 10px; display: inline-block;">
+                        <img src="{{ $qrCodePath }}" alt="Code QR de certification" style="width: 50px; height: 50px; opacity: 0.7;"/>
+                    </div>
+                    <p>Fait à Porto-Novo, le {{ now()->format('d') }} / {{ now()->format('m') }} / {{ now()->format('Y') }}</p>
+                </td>
                 <td class="footer-signature-cell">
-                    <strong>Le Directeur de l'EPUMA le Phénix</strong><br><br><br>
+                    <strong>Le Directeur de l'EPUMA le Phénix</strong><br><br><br><br><br><br>
                     <span>M. ASSONGBA S. Anicet</span>
                 </td>
             </tr>

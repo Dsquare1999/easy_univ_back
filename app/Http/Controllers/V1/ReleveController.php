@@ -25,6 +25,9 @@ use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Illuminate\Http\UploadedFile;
 
+use Endroid\QrCode\Builder\Builder;
+use Endroid\QrCode\Writer\PngWriter;
+
 class ReleveController extends Controller
 {
     /**
@@ -366,17 +369,21 @@ class ReleveController extends Controller
             $notes = [];
             $classe = Classe::with(['matieres.unite'])->findOrFail($id);
             $matieres = $classe->matieres;
-            Log::info("Matieres: " . $matieres);
             $matieres = $matieres->where('year_part', $year_part);
             
             $uniteIds = $matieres->pluck('unite')->filter()->unique()->values()->all();
 
-            Log::info("Unite IDs: " . implode(', ', $uniteIds));
             $unites = Unite::with(['matieres' => function($q) use ($matieres) {
-                $q->whereIn('id', $matieres->pluck('id'));
+                $q->whereIn('id', $matieres->pluck('id'))->orderBy('libelle', 'asc');
             }])->whereIn('id', $uniteIds)->orderBy('code', 'asc')->get();
 
             $students = $classe->students;
+
+            // Tri des étudiants par ordre alphabétique (lastname, firstname)
+            $students = $students->sortBy(function($student) {
+                $user = User::find($student->user);
+                return $user ? $user->lastname . ' ' . $user->firstname : '';
+            });
 
             $releves = Releve::with(['matiere.unite', 'student.user'])->where('classe', $id)->get();
             foreach ($students as $student) {
@@ -388,7 +395,7 @@ class ReleveController extends Controller
                 $note = [];
                 $count_non_validated = 0;
                 $count_validated = 0;
-                $note['name'] = $user->firstname . ' ' . $user->lastname;
+                $note['name'] = $user->lastname . ' ' . $user->firstname;
                 $note['user'] = $user;
                 $note['student'] = $student;
                 $note['notes'] = [];
@@ -504,21 +511,48 @@ class ReleveController extends Controller
         return 'E';
     }
 
+    // private function generateQrCode(string $data, string $filename): ?string
+    // {
+    //     try {
+    //         $qrData = urlencode($data);
+    //         $apiUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={$qrData}";
+    //         $qrCodePngData = @file_get_contents($apiUrl);
+
+    //         if ($qrCodePngData === false) {
+    //             throw new \Exception("Impossible de contacter l'API du QR Code");
+    //         }
+
+    //         $qrCodeStoragePath = 'qrcodes/' . $filename;
+    //         Storage::disk('public')->put($qrCodeStoragePath, $qrCodePngData);
+            
+    //         $absolutePath = Storage::disk('public')->path($qrCodeStoragePath);
+    //         return $absolutePath;
+
+    //     } catch (\Exception $e) {
+    //         Log::error("Erreur génération QR Code: " . $e->getMessage());
+    //         return null;
+    //     }
+    // }
+
     private function generateQrCode(string $data, string $filename): ?string
     {
         try {
-            $qrData = urlencode($data);
-            $apiUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={$qrData}";
-            $qrCodePngData = @file_get_contents($apiUrl);
 
-            if ($qrCodePngData === false) {
-                throw new \Exception("Impossible de contacter l'API du QR Code");
-            }
+            $result = Builder::create()
+                ->writer(new PngWriter())
+                ->data($data)
+                ->size(150)
+                ->margin(10)
+                ->build();
+
+            $qrCodePngData = $result->getString();
 
             $qrCodeStoragePath = 'qrcodes/' . $filename;
+
             Storage::disk('public')->put($qrCodeStoragePath, $qrCodePngData);
-            
+
             $absolutePath = Storage::disk('public')->path($qrCodeStoragePath);
+
             return $absolutePath;
 
         } catch (\Exception $e) {
@@ -526,8 +560,6 @@ class ReleveController extends Controller
             return null;
         }
     }
-
-
 
 
     /**

@@ -281,7 +281,6 @@
                             foreach($unite->matieres as $m) {
                                 $valeur_note = $note['notes'][$m->code] ?? 0;
                                 
-                                // $somme_ponderee += $valeur_note * $m->coefficient;
                                 $somme_ponderee += $valeur_note;
 
                                 if($valeur_note >= 10) {
@@ -289,7 +288,7 @@
                                 }
                             }
 
-                            // $moyenne_ue = $total_coeffs > 0 ? $somme_ponderee / $total_coeffs : 0;
+                            
                             $moyenne_ue = $total_coeffs > 0 ? $somme_ponderee / $unite->matieres->count() : 0;
                             
                             $pourcentage = $total_coeffs > 0 ? ($credits_valides / $total_coeffs) * 100 : 0;
@@ -297,7 +296,6 @@
                             // Adding general informations
                             $moyenne_generale += $moyenne_ue * $total_coeffs;
                             $total_total_coeffs += $total_coeffs;
-                            $total_points = $moyenne_generale * $total_coeffs;
                             $total_coeffs_valides += $credits_valides;
 
                         @endphp
@@ -311,7 +309,7 @@
                             </th>
 
                             {{-- Moyenne pondérée --}}
-                            <th colspan="1" class="center-text">
+                            <th colspan="1" class="center-text" style="{{ $moyenne_ue < 10 ? 'color: red;' : '' }}">
                                 {{ number_format($moyenne_ue, 2, ',', '.') }}
                             </th>
 
@@ -322,10 +320,11 @@
 
                             {{-- Pourcentage --}}
                             <th colspan="1" class="center-text">
-                                {{ number_format($pourcentage, 2, ',', '.') }}%
+                                <!-- {{ number_format($pourcentage, 2, ',', '.') }}% -->
+                                  100%
                             </th>
 
-                            <th colspan="1" class="center-text">{{ number_format($total_points, 2, ',', '.') }}</th>
+                            <th colspan="1" class="center-text">{{ number_format($moyenne_ue * $total_coeffs, 2, ',', '.') }}</th>
                             <th colspan="1" class="center-text">{{ $calculateGrade($moyenne_ue) }}</th>
                         </tr>
                         @foreach($unite->matieres as $matiere)
@@ -335,7 +334,7 @@
                                 <td class="center-text">
                                     {{ $matiere->coefficient }}
                                 </td>
-                                <td class="center-text">
+                                <td class="center-text" style="{{ isset($note['notes'][$matiere->code]) && $note['notes'][$matiere->code] < 10 ? 'color: red;' : '' }}">
                                     @if(isset($note['notes'][$matiere->code]))
                                         {{ number_format($note['notes'][$matiere->code], 2, ',', '.') }}
                                     @else
@@ -346,11 +345,7 @@
                                     {{ $note['notes'][$matiere->code] >= 10 ? $matiere->coefficient : 0 }}
                                 </td>
                                 <td class="center-text">
-                                    @if(isset($note['count_validated']))
-                                        {{ $note['notes'][$matiere->code] >= 10 ? number_format(($matiere->coefficient/$total_coeffs)*100, 2, ',', '.') : 0 }}%
-                                    @else
-                                        N/A
-                                    @endif
+                                    {{ number_format(($matiere->coefficient/$total_coeffs)*100, 2, ',', '.')}}%
                                 </td>
                                 <td class="center-text">
                                     @if($note['notes'][$matiere->code] >= 10)
@@ -374,7 +369,7 @@
                     <tr>
                         <td colspan="1"><strong>Total</strong></td>
                         <td class="center-text"><strong>
-                            {{ $somme_coeffs ? $somme_coeffs : 'N/A' }}
+                            {{ $total_total_coeffs ? $total_total_coeffs : 'N/A' }}
                         </strong></td>
                         <td></td>
                         <td colspan="1" class="center-text"><strong>{{ $total_coeffs_valides }}</strong></td>

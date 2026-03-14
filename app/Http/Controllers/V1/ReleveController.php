@@ -128,16 +128,22 @@ class ReleveController extends Controller
 
             $sheet->getStyle('A1:F1')->applyFromArray($headerStyle);
 
+            // Tri des étudiants par ordre alphabétique (lastname, firstname)
+            $students = $classe->students->sortBy(function($student) {
+                $user = User::find($student->user);
+                return $user ? $user->lastname . ' ' . $user->firstname : '';
+            });
+
             // Remplir les données des étudiants
             $row = 2;
-            foreach ($classe->students as $student) {
+            foreach ($students as $student) {
                 
                 $user = User::find($student->user);
                 // ID court (5 premiers caractères)
                 $shortId = substr($user->id, 0, 5);
 
                 // Nom complet
-                $fullName = $user->firstname . ' ' . $user->lastname;
+                $fullName = $user->lastname . ' ' . $user->firstname;
 
                 $sheet->setCellValue('A' . $row, $shortId);
                 $sheet->setCellValue('B' . $row, $fullName);
@@ -450,7 +456,7 @@ class ReleveController extends Controller
             $qrCodePath = $this->generateQrCode("Bulletin émis le ".now()->format('d/m/Y'), "Bulletin QR Code");
 
             $relevesNotesController = new ReleveNotesController();
-            $pdfresponse = $relevesNotesController($cycle, $filiere, $classe, $unites, $notes, $meansPerMatiere, $year_part, $somme_coeffs, $qrCodePath);
+            $pdfresponse = $relevesNotesController($cycle, $filiere, $classe, $unites, $notes, $meansPerMatiere, $year_part, $qrCodePath);
 
             return response()->json([
                 'success' => true,

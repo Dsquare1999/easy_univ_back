@@ -17,7 +17,7 @@ class ReleveNotesController extends Controller
     /**
      * Handle the incoming request.
      */
-    public function __invoke($cycle, $filiere, $classe, $unites, $notes, $meansPerMatiere, $year_part, $somme_coeffs, $qrCodePath)
+    public function __invoke($cycle, $filiere, $classe, $unites, $notes, $meansPerMatiere, $year_part, $qrCodePath)
     {
 
         if (Storage::directoryMissing('releves')){
@@ -71,7 +71,6 @@ class ReleveNotesController extends Controller
                     'unites' => $unites,
                     'note' => $note,
                     'year_part' => $year_part,
-                    'somme_coeffs' => $somme_coeffs,
                     'qrCodePath' => $qrCodePath
                 ])
                 ->save($path = $bulletinPath);

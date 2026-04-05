@@ -402,6 +402,12 @@ class ReleveController extends Controller
                 $note['name'] = $user->lastname . ' ' . $user->firstname;
                 $note['user'] = $user;
                 $note['student'] = $student;
+
+                $frontendUrl = env('FRONTEND_URL', 'https://easyuniv.lephenix.bj');
+                $qrCodeData = $frontendUrl . '/user/' . $user->id;
+                $qrCodePath = $this->generateQrCode($qrCodeData, 'qr_code_' . $user->id . '.png');
+                $note['qrCodePath'] = $qrCodePath;
+                
                 $note['notes'] = [];
 
                 $somme_notes = 0;

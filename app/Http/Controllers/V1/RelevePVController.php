@@ -28,16 +28,15 @@ class RelevePVController extends Controller
         $success = true;
         $error = null;
 
-        $filename = 'pv_' . $cycleName . '_' . $filiereName . '_semester_' . $classe->academic_year . '_' . $year_part . '.pdf';
-        $relativePath = "pv/{$filename}";
+        $filename = 'pv_' . $cycleName . '_' . $filiereName . '_semester_' . $classe->academic_year . '_' . $year_part . '_' . now()->format('YmdHis') . '.pdf';
         $filepath = Storage::disk('public')->path('pv/' . $filename);
-        $disk = Storage::disk('public');
-        Log::info("Filename: " . $filename);
-        Log::info("Filepath: " . $filepath);
 
-        if ($disk->exists($relativePath)) {
-            $disk->delete($relativePath);
-        }
+        $relativePath = "pv/{$filename}";
+        $disk = Storage::disk('public');
+
+        // if ($disk->exists($relativePath)) {
+        //     $disk->delete($relativePath);
+        // }
 
         try {
             Log::info("Avant génération du PDF PV");

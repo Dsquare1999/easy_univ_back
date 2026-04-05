@@ -25,7 +25,7 @@
         .header-table {
             width: 100%;
             border-bottom: 2px solid #333;
-            padding-bottom: 1rem;
+            /* padding-bottom: 1rem; */
             text-align: center;
         }
         .header-table td {
@@ -34,33 +34,36 @@
         .header-table h2, .header-table h3, .header-table h4, .header-table p {
             margin: 2px 0;
         }
-        .header-table h2 { font-size: 1.1em; }
-        .header-table h3 { font-size: 1em; }
-        .header-table h4 { font-size: 0.9em; font-style: italic;}
+        .header-table h2 { font-size: 0.8em; }
+        .header-table h3 { font-size: 0.6em; }
+        .header-table h4 { font-size: 0.8em; font-style: italic;}
         .logo-placeholder {
-            border: 1px dashed #999;
-            width: 80px;
-            height: 80px;
+            width: 50px;
+            height: 50px;
             text-align: center;
-            line-height: 80px;
+            line-height: 50px;
             color: #999;
             font-size: 0.8em;
             margin: 0 auto;
         }
-        .header-center-cell { width: 60%; }
+        .header-center-cell { width: 70%; }
+
+        .header-center-cell p{
+            font-size: 0.8em;
+        }
 
         /** 📜 Le corps. */
         .main-title {
             text-align: center;
-            font-size: 1.4em;
+            font-size: 1.2em;
             font-weight: bold;
             text-decoration: underline;
-            margin: 1.5rem 0;
+            margin: 0.5rem 0 0.5rem 0;
         }
         /* 🆔 Section Identité, reconstruite avec une table */
         .student-photo {
-            width: 25mm;
-            height: 28mm;
+            width: 21mm;
+            height: 22mm;
             object-fit: cover;
             object-position: center center;
         }
@@ -69,11 +72,11 @@
         .student-info-table {
             font-size: 12px;
             width: 100%;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
         }
         .student-info-table td {
             vertical-align: top;
-            padding: 0 1rem;
+            padding: 0 0.8rem;
         }
         .student-info-table td.student-photo-cell {
             padding: 0;
@@ -86,7 +89,7 @@
         .grades-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 1rem;
+            margin-bottom: 0;
             font-size: 10px;
         }
         .grades-table th, .grades-table td {
@@ -113,7 +116,7 @@
 
         /** 🖋️ Le pied de page. */
         .transcript-footer { 
-            font-size: 0.9em; 
+            font-size: 0.8em; 
         }
         .transcript-footer > table {
             width: 100%;
@@ -128,11 +131,11 @@
             text-align: center;
             padding-left: 10px;
         }
-        .grading-scale { font-size: 0.8em; text-align: center; margin-bottom: 1.5rem; }
-        .semester-average { text-align: center; margin-bottom: 1.5rem; font-size: 1.1em; }
+        .grading-scale { font-size: 0.8em; text-align: center; margin-bottom: 0.8rem; }
+        .semester-average { text-align: center; margin-bottom: 0; font-size: 1em; }
         .average-box { display: inline-block; border: 1px solid #333; padding: 5px 15px; margin: 0 10px; position: relative; bottom: -10px; }
-        .decision { text-align: center; font-size: 1.1em; margin-bottom: 2rem; }
-        .footer-contact { text-align: center; margin-top: 2rem; font-size: 0.8em; border-top: 1px solid #ccc; padding-top: 0.5rem; }
+        .decision { text-align: center; font-size: 1em; margin-bottom: 2rem; }
+        .footer-contact { text-align: center; margin-top: 0; font-size: 0.8em; border-top: 1px solid #ccc; padding-top: 0.5rem; }
 
         /* Le chaos des signatures, dompté par une table. */
         .signatures-table {
@@ -146,11 +149,11 @@
             position: relative; /* Contexte pour les tampons */
         }
         .signature-placeholder {
-            margin-top: 3rem;
+            margin-top: 2rem;
             font-style: italic;
             color: #555;
         }
-        .director-signature { margin-top: 1.5rem; }
+        .director-signature { margin-top: 0; }
         .certification-box {
             border: 2px solid #333;
             padding: 10px;
@@ -196,18 +199,27 @@
         <!-- 🔱 En-tête -->
         <table class="header-table">
             <tr>
-                <td style="width: 20%;"><div class="logo-placeholder">
+                <td style="width: 15%;"><div class="logo-placeholder">
                     <img src="{{ public_path('storage/logo-mesrs.png') }}" alt="Logo EPUMA" class="logo-epuma" style="max-width: 100%; height: auto; object-fit: cover;"/>
                 </div></td>
                 <td class="header-center-cell">
                     <h2>REPUBLIQUE DU BENIN</h2>
                     <p>Ministère de l'Enseignement Supérieur et de la Recherche Scientifique</p>
-                    <h3>ECOLE POLYTECHNIQUE UNIVERSITAIRE DES METIERS D'AVENIR (EPUMA)</h3>
-                    <h4>Le Phénix</h4>
+                    <h3>ECOLE POLYTECHNIQUE UNIVERSITAIRE DES METIERS D'AVENIR (EPUMA) LE PHENIX</h3>
                 </td>
-                <td style="width: 20%;"><div class="logo-placeholder">
+                <td style="width: 15%;"><div class="logo-placeholder">
                     <img src="{{ public_path('storage/logo-epuma.png') }}" alt="Logo EPUMA" class="logo-epuma" style="max-width: 100%; height: auto; object-fit: cover;"/>
                 </div></td>
+            </tr>
+        </table>
+        <table class="header-table">
+            <tr>
+                <td>
+                    <p style="font-size: 10px; text-align:left"><strong>Arrêté de création</strong>: Nº2025-0758/MESRS/DC/SGM/DGES/DOSES/CJ/SA/020SGG25</p>
+                </td>
+                <td>
+                    <p style="font-size: 10px; text-align:right"><strong>Arrêté d'autorisation d'ouverture</strong>: Nº2025-0762/MESRS/DC/SGM/DGES/DOSES/CJ/SA/020SGG25</p>
+                </td>
             </tr>
         </table>
  
@@ -225,18 +237,16 @@
                         @endif
                     </td>
                     <td>
-                        <p><strong>Cycle :</strong> {{ $cycle->name }}</p>
-                        <p><strong>Filière :</strong> {{ $filiere->name }}</p>
-                        <p><strong>Année :</strong> {{ $classe->year }}</p>
-                        <p><strong>Année universitaire :</strong> {{ $classe->academic_year }}-{{ $classe->academic_year + 1 }}</p>
-                        <p><strong>Semestre :</strong> {{ $year_part == 1 ? 'I' : 'II' }}</p>
-                    </td>
-                    <td>
                         <p><strong>Nom :</strong> {{ $note['user']->lastname }}</p>
                         <p><strong>Prénoms :</strong> {{ $note['user']->firstname }}</p>
-                        <p><strong>Date de Naissance :</strong> {{ $note['user']->birthdate }}</p>
-                        <p><strong>Lieu de Naissance :</strong> {{ $note['user']->birthplace }}</p>
-                        <p><strong>N° matricule :</strong> {{ $note['user']->matricule }}</p>
+                        <p><strong>Date de Naissance :</strong> {{ $note['user']->birthdate }} à {{ $note['user']->birthplace }}</p>
+                        <p><strong>Éduc Master :</strong> {{ $note['user']->matricule }}</p>
+                    </td>
+                    <td>
+                        <p><strong>Cycle :</strong> {{ $cycle->name }}</p>
+                        <p><strong>Filière :</strong> {{ $filiere->name }}</p>
+                        <p><strong>Année :</strong> {{ $classe->year }} &nbsp;&nbsp;&nbsp; <strong>Semestre :</strong> {{ $year_part == 1 ? 'I' : 'II' }}</p>
+                        <p><strong>Année universitaire :</strong> {{ $classe->academic_year }}-{{ $classe->academic_year + 1 }}</p>
                     </td>
                 </tr>
             </table>
@@ -245,13 +255,11 @@
             <table class="grades-table">
                 <thead>
                     <tr>
-                        <th>Code - UE</th>
-                        <th>Nombre de crédits</th>
-                        <th>Note /20</th>
-                        <th>Nombre de crédits validés</th>
-                        <th>Pourcentage de crédit</th>
-                        <th>Point</th>
-                        <th>Côte</th>
+                        <th style="width: 60%;">Code - UE</th>
+                        <th style="width: 10%;">Crédits</th>
+                        <th style="width: 10%;">Note /20</th>
+                        <th style="width: 10%;">Crédits validés</th>
+                        <th style="width: 10%;">Côte</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -290,8 +298,6 @@
 
                             
                             $moyenne_ue = $total_coeffs > 0 ? $somme_ponderee / $unite->matieres->count() : 0;
-                            
-                            $pourcentage = $total_coeffs > 0 ? ($credits_valides / $total_coeffs) * 100 : 0;
 
                             // Adding general informations
                             $moyenne_generale += $moyenne_ue * $total_coeffs;
@@ -318,19 +324,11 @@
                                 {{ $credits_valides }}
                             </th>
 
-                            {{-- Pourcentage --}}
-                            <th colspan="1" class="center-text">
-                                <!-- {{ number_format($pourcentage, 2, ',', '.') }}% -->
-                                  100%
-                            </th>
-
-                            <th colspan="1" class="center-text">{{ number_format($moyenne_ue * $total_coeffs, 2, ',', '.') }}</th>
                             <th colspan="1" class="center-text">{{ $calculateGrade($moyenne_ue) }}</th>
                         </tr>
                         @foreach($unite->matieres as $matiere)
                             <tr>
                                 <td>{{ $matiere->code }} - {{ $matiere->name }}</td>
-                                <!-- <td>{{ $matiere->name }}</td> -->
                                 <td class="center-text">
                                     {{ $matiere->coefficient }}
                                 </td>
@@ -343,16 +341,6 @@
                                 </td>
                                 <td class="center-text">
                                     {{ $note['notes'][$matiere->code] >= 10 ? $matiere->coefficient : 0 }}
-                                </td>
-                                <td class="center-text">
-                                    {{ number_format(($matiere->coefficient/$total_coeffs)*100, 2, ',', '.')}}%
-                                </td>
-                                <td class="center-text">
-                                    @if($note['notes'][$matiere->code] >= 10)
-                                        {{ number_format($note['notes'][$matiere->code] * $matiere->coefficient, 2, ',', '.') }}
-                                    @else
-                                        0
-                                    @endif
                                 </td>
                                 <td class="center-text">
                                     @if(isset($note['notes'][$matiere->code]))
@@ -373,8 +361,7 @@
                         </strong></td>
                         <td></td>
                         <td colspan="1" class="center-text"><strong>{{ $total_coeffs_valides }}</strong></td>
-                        <td colspan="1" class="center-text"><strong>{{ number_format(($total_coeffs_valides/$total_total_coeffs)*100, 2, ',', '.') }}%</strong></td>
-                        <td colspan="2"></td>
+                        <td colspan="1"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -408,8 +395,8 @@
                         </p>
                     </td>
                     <td>
-                        <div style="border: 1px solid #ccc; padding: 10px; display: inline-block;">
-                            <img src="{{ $qrCodePath }}" alt="Code QR de certification" style="width: 100px; height: 100px; opacity: 0.7;"/>
+                        <div style="border: 1px solid #ccc; padding: 4px; display: inline-block;">
+                            <img src="{{ $qrCodePath }}" alt="Code QR de certification" style="width: 60px; height: 60px; opacity: 0.7;"/>
                         </div>
                     </td>
                 </tr>
@@ -418,13 +405,12 @@
             <table class="signatures-table">
                 <tr>
                     <td>
-                        <div class="signature-placeholder director-signature">Signature ASSONGBA S. Anicet</div>
+                        <div class="signature-placeholder director-signature"></div>
                         <p><strong>M. ASSONGBA S. Anicet</strong><br>Directeur de EPUMA le Phénix</p>
                     </td>
                 </tr>
             </table>
-
-            <p class="footer-contact">Le Phénix/Ecole Polytechnique Universitaire des Métiers d'Avenir (EPUMA). Email: contact@epuma.lephenix.bj</p>
+            <!-- <p class="footer-contact">Le Phénix/Ecole Polytechnique Universitaire des Métiers d'Avenir (EPUMA). Email: contact@epuma.lephenix.bj</p> -->
         </footer>
     </div>
 

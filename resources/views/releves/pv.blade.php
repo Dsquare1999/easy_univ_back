@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Relevé de Notes de Classe</title>
+    <title>Procès Verbal de Classe</title>
     <style>
         /* 📜 On commande la page pour qu'elle soit en paysage par défaut */
         @page {
@@ -13,7 +13,7 @@
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
             color: #000;
-            font-size: 9pt;
+            font-size: 7pt;
             margin: 0;
         }
 
@@ -48,7 +48,7 @@
         }
         .class-grades-table th, .class-grades-table td {
             border: 1px solid #ccc;
-            padding: 4px 6px;
+            /* padding: 4px 6px; */
             text-align: center;
             vertical-align: middle;
         }
@@ -57,15 +57,20 @@
         .class-grades-table thead th {
             background-color: #e9ecef;
             font-weight: bold;
-            font-size: 0.9em;
-            padding: 8px 4px;
+            font-size: 7pt;
+            /* padding: 6px 3px; */
+            padding: 2px;
         }
         .ue-header-row th {
             border-bottom: 2px solid #555;
         }
         .subject-header-row th {
             font-weight: normal;
-            font-size: 0.8em;
+            font-size: 7pt;
+        }
+
+        tbody{
+            font-size: 7pt;
         }
 
         /* 👤 Style des colonnes spécifiques. */
@@ -84,6 +89,9 @@
         .summary-col {
             background-color: #f1f3f5;
             font-weight: bold;
+            width: 40px;
+            max-width: 40px;
+            padding: 2px;
         }
         .student-average {
             font-size: 1.1em;
@@ -99,7 +107,7 @@
         .class-average-row td {
             background-color: #e9ecef;
             font-weight: bold;
-            font-size: 1em;
+            font-size: 0.9em;
             border-top: 2px solid #555;
         }
 
@@ -148,24 +156,33 @@
             </tr>
         </table>
         
-        <h1 class="main-title">RÉSULTATS DE FIN DE SEMESTRE</h1>
+        <h1 class="main-title">PROCÈS VERBAL DE FIN DE SEMESTRE</h1>
 
         <main class="class-grades-container">
             <table class="class-grades-table">
                 <thead>
                     <tr class="ue-header-row">
-                        <th rowspan="2">N°</th>
-                        <th rowspan="2" class="student-name-col">Noms et Prénoms</th>
+                        <th rowspan="3" style="width: 20px;">N°</th>
+                        <th rowspan="3" class="student-name-col">Noms et Prénoms</th>
                         @foreach($unites as $unite)
-                            <th colspan="{{ $unite->matieres->count() }}">{{ $unite->name }}</th>
+                            <th colspan="{{ $unite->matieres->count() * 3 }}">{{ $unite->name }}</th>
                         @endforeach
-                        <th rowspan="2" class="summary-col">Moy. Gén.</th>
-                        <th rowspan="2" class="summary-col">Côte</th>
+                        <th rowspan="3" class="summary-col" style="width: 20px;">Moy. Gén.</th>
+                        <th rowspan="3" class="summary-col" style="width: 20px;">Côte</th>
                     </tr>
                     <tr class="subject-header-row">
                         @foreach($unites as $unite)
                             @foreach($unite->matieres as $matiere)
-                                <th>{{ $matiere->code }}<br>({{ $matiere->coefficient }} crédits)</th>
+                                <th colspan="3" style="text-align: center; font-size:5pt">{{ $matiere->code }}<br>({{ $matiere->coefficient }} crédits)</th>
+                            @endforeach
+                        @endforeach
+                    </tr>
+                    <tr class="subject-header-row">
+                        @foreach($unites as $unite)
+                            @foreach($unite->matieres as $matiere)
+                                <th style="font-size:5pt">CC</th>
+                                <th style="font-size:5pt">EX</th>
+                                <th style="font-size:5pt">MOY</th>
                             @endforeach
                         @endforeach
                     </tr>
@@ -178,6 +195,20 @@
                             <td class="student-name-col" style="text-align: left;">{{ $note['name'] }}</td>
                             @foreach($unites as $unite)
                                 @foreach($unite->matieres as $matiere)
+                                    <td style="{{ isset($note['notes'][$matiere->code]) && $note['notes'][$matiere->code] < 10 ? 'color: red;' : '' }}">
+                                        @if(isset($note['notes'][$matiere->code]))
+                                            {{ number_format(($note['notes'][$matiere->code.'_exam1']+$note['notes'][$matiere->code.'_exam2'])/2, 2) }}
+                                        @else
+                                            N/A
+                                        @endif
+                                    </td>
+                                    <td style="{{ isset($note['notes'][$matiere->code]) && $note['notes'][$matiere->code] < 10 ? 'color: red;' : '' }}">
+                                        @if(isset($note['notes'][$matiere->code]))
+                                            {{ number_format($note['notes'][$matiere->code.'_partial'], 2) }}
+                                        @else
+                                            N/A
+                                        @endif
+                                    </td>
                                     <td style="{{ isset($note['notes'][$matiere->code]) && $note['notes'][$matiere->code] < 10 ? 'color: red;' : '' }}">
                                         @if(isset($note['notes'][$matiere->code]))
                                             {{ number_format($note['notes'][$matiere->code], 2) }}

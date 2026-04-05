@@ -399,8 +399,6 @@ class ReleveController extends Controller
                 }
 
                 $note = [];
-                $count_non_validated = 0;
-                $count_validated = 0;
                 $note['name'] = $user->lastname . ' ' . $user->firstname;
                 $note['user'] = $user;
                 $note['student'] = $student;
@@ -411,18 +409,11 @@ class ReleveController extends Controller
 
                 foreach ($releves as $releve) {
                     if ($releve->student == $student->id) {
-                        // Calcul de la moyenne de la matière
                         $moyenne = ((($releve->exam1 + $releve->exam2) / 2) * 0.4) + ($releve->partial * 0.6);
                         if ($releve->remedial) {
                             $moyenne = $releve->remedial;
                         }
                         $moyenne = round($moyenne, 2);
-
-                        if ($moyenne < 10) {
-                            $count_non_validated++;
-                        } else {
-                            $count_validated++;
-                        }
                         $matiere = Matiere::find($releve->matiere);
                         if (!$matiere) {
                             continue;
@@ -440,12 +431,6 @@ class ReleveController extends Controller
 
                 // Décision
                 $note['cote'] = $this->getCote($note['moyenne']);
-                $note['decision'] = $count_non_validated > 0
-                    ? $count_non_validated . ' ECUE non validées'
-                    : 'Validé';
-                $note['count_non_validated'] = $count_non_validated;
-                $note['count_validated'] = $count_validated;
-
                 $notes[] = $note;
             }
             
@@ -484,6 +469,116 @@ class ReleveController extends Controller
     }
 
     /**
+     * Generate PDF for PV report.
+     */
+    public function generatePV($id, $year_part)
+    {
+        try {
+            $notes = [];
+            $classe = Classe::with(['matieres.unite'])->findOrFail($id);
+            Log::error("Classe found: " . $classe->id);
+            $matieres = $classe->matieres;
+            $matieres = $matieres->where('year_part', $year_part);
+            
+            $uniteIds = $matieres->pluck('unite')->filter()->unique()->values()->all();
+
+            $unites = Unite::with(['matieres' => function($q) use ($matieres) {
+                $q->whereIn('id', $matieres->pluck('id'))->orderBy('libelle', 'asc');
+            }])->whereIn('id', $uniteIds)->orderBy('code', 'asc')->get();
+
+            $students = $classe->students;
+            Log::error("Avant le tri: ");
+            // Tri des étudiants par ordre alphabétique (lastname, firstname)
+            $students = $students->sortBy(function($student) {
+                $user = User::find($student->user);
+                return $user ? $user->lastname . ' ' . $user->firstname : '';
+            });
+            Log::error("Après le tri: ");
+            $releves = Releve::with(['matiere.unite', 'student.user'])->where('classe', $id)->get();
+            foreach ($students as $student) {
+                $user = User::find($student->user);
+                if (!$user) {
+                    continue;
+                }
+
+                $note = [];
+                $note['name'] = $user->lastname . ' ' . $user->firstname;
+                $note['user'] = $user;
+                $note['student'] = $student;
+                $note['notes'] = [];
+
+                $somme_notes = 0;
+                $somme_coeffs = 0;
+
+                foreach ($releves as $releve) {
+                    if ($releve->student == $student->id) {
+                        // Calcul de la moyenne de la matière
+                        
+                        $moyenne = ((($releve->exam1 + $releve->exam2) / 2) * 0.4) + ($releve->partial * 0.6);
+                        if ($releve->remedial) {
+                            $moyenne = $releve->remedial;
+                        }
+                        $moyenne = round($moyenne, 2);
+                        $matiere = Matiere::find($releve->matiere);
+                        if (!$matiere) {
+                            continue;
+                        }
+                        $note['notes'][$matiere->code] = $moyenne;
+                        $note['notes'][$matiere->code . '_exam1'] = $releve->exam1;
+                        $note['notes'][$matiere->code . '_exam2'] = $releve->exam2;
+                        $note['notes'][$matiere->code . '_partial'] = $releve->partial;
+                        $note['notes'][$matiere->code . '_remedial'] = $releve->remedial;
+
+                        // Pour la moyenne générale
+                        $somme_notes += $moyenne * $matiere->coefficient;
+                        $somme_coeffs += $matiere->coefficient;
+                    }
+                }
+
+                // Moyenne générale pondérée
+                $note['moyenne'] = $somme_coeffs > 0 ? round($somme_notes / $somme_coeffs, 2) : null;
+
+                // Décision
+                $note['cote'] = $this->getCote($note['moyenne']);
+                $notes[] = $note;
+            }
+            
+            $meansPerMatiere = $this->generalMeanPerMatiere($notes, $matieres);
+            Log::error("Après le foreach: " . json_encode($meansPerMatiere));
+            $cycle   = Cycle::findOrFail($classe->cycle);
+            $filiere = Filiere::findOrFail($classe->filiere);
+            $qrCodePath = $this->generateQrCode("Procès Verbal émis le ".now()->format('d/m/Y'), "Procès Verbal QR Code");
+            
+            Log::error("Avant le RelevePVController: ");
+            $relevesPVController = new RelevePVController();
+            $pdfresponse = $relevesPVController($cycle, $filiere, $classe, $unites, $notes, $meansPerMatiere, $year_part, $qrCodePath);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'PV generated successfully',
+                'data'    => $notes,
+                'pdfresponse' => $pdfresponse
+            ], 201);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            Log::error("PV not found: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'PV not found',
+                'errors'  => ['message' => $e->getMessage()],
+            ], 404);
+        } catch (\Exception $e) {
+            Log::error("Failed to generate pv: " . $e->getMessage());
+            Log::error("Error details: " . $e->getTraceAsString());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to generate pv',
+                'errors'  => ['message' => $e->getMessage()],
+            ], 500);
+        }
+    }
+
+    /**
      * Calcule la moyenne générale par matière
      */
     private function generalMeanPerMatiere(array $notes, $matieres)
@@ -516,29 +611,6 @@ class ReleveController extends Controller
         if ($moyenne >= 10) return 'D';
         return 'E';
     }
-
-    // private function generateQrCode(string $data, string $filename): ?string
-    // {
-    //     try {
-    //         $qrData = urlencode($data);
-    //         $apiUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={$qrData}";
-    //         $qrCodePngData = @file_get_contents($apiUrl);
-
-    //         if ($qrCodePngData === false) {
-    //             throw new \Exception("Impossible de contacter l'API du QR Code");
-    //         }
-
-    //         $qrCodeStoragePath = 'qrcodes/' . $filename;
-    //         Storage::disk('public')->put($qrCodeStoragePath, $qrCodePngData);
-            
-    //         $absolutePath = Storage::disk('public')->path($qrCodeStoragePath);
-    //         return $absolutePath;
-
-    //     } catch (\Exception $e) {
-    //         Log::error("Erreur génération QR Code: " . $e->getMessage());
-    //         return null;
-    //     }
-    // }
 
     private function generateQrCode(string $data, string $filename): ?string
     {

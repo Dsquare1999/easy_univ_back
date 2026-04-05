@@ -24,6 +24,7 @@ use App\Http\Controllers\V1\ProgramController;
 use App\Http\Controllers\V1\ReleveController;
 use App\Http\Controllers\V1\NotifController;
 use App\Http\Controllers\V1\DocumentController;
+use App\Http\Controllers\V1\ArchiveController;
 
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
@@ -52,7 +53,9 @@ Route::prefix('/v1/auth')->middleware(['guest'])->group(function(){
     Route::post('/reset-password', [NewPasswordController::class, 'store'])
                 ->name('password.store');
 });
-
+Route::prefix('/v1/users')->middleware(['guest'])->group(function(){
+    Route::get("/show/{id}", [UserController::class,"show"]);
+});
 // auth routes
 Route::prefix('/v1')->middleware(['auth'])->group(function(){
 
@@ -129,6 +132,7 @@ Route::prefix('/v1/releves')->middleware('auth:sanctum', 'ability:' . EasyUnivTo
     Route::get("/download/{classeId}/{matiereId}", [ReleveController::class,"download"]);
     Route::post("/import/{classeId}/{matiereId}", [ReleveController::class,"import"]);
     Route::post("/generate/{id}/{year_part}",  [ReleveController::class,"generate"]);
+    Route::post("/generate-pv/{id}/{year_part}",  [ReleveController::class,"generatePV"]);
     Route::match(['put', 'patch'], '/update/{id}',  [ReleveController::class,"update"]);
     Route::delete("/destroy/{id}",  [ReleveController::class,"destroy"]);
 });
@@ -184,6 +188,15 @@ Route::prefix('/v1/invoices')->middleware('auth:sanctum', 'ability:' . EasyUnivT
     Route::get('/getInvoicesByUser/{user_id}', [InvoiceController::class, 'getInvoicesByUser']);
     Route::get('/getInvoicesByClasse/{classe_id}', [InvoiceController::class, 'getInvoicesByClasse']);
     Route::get('/getInvoicesByTag/{tag_id}', [InvoiceController::class, 'getInvoicesByTag']);
+});
+
+Route::prefix('/v1/archives')->middleware('auth:sanctum', 'ability:' . EasyUnivTokenAbility::ACCESS_API->value)->group(function(){
+    Route::get("/", [ArchiveController::class, "index"]);
+    Route::get("/show/{id}", [ArchiveController::class,"show"]);
+    Route::post("/store", [ArchiveController::class,"store"]);
+    Route::match(['post', 'put', 'patch'], '/update/{id}',  [ArchiveController::class,"update"]);
+    Route::delete("/destroy/{id}",  [ArchiveController::class,"destroy"]);
+    Route::get("/download/{id}", [ArchiveController::class,"download"]);
 });
 
 

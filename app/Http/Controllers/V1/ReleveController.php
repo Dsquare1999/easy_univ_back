@@ -407,7 +407,7 @@ class ReleveController extends Controller
                 $qrCodeData = $frontendUrl . '/user/' . $user->id;
                 $qrCodePath = $this->generateQrCode($qrCodeData, 'qr_code_' . $user->id . '.png');
                 $note['qrCodePath'] = $qrCodePath;
-                
+
                 $note['notes'] = [];
 
                 $somme_notes = 0;
@@ -444,7 +444,7 @@ class ReleveController extends Controller
 
             $cycle   = Cycle::findOrFail($classe->cycle);
             $filiere = Filiere::findOrFail($classe->filiere);
-            $qrCodePath = $this->generateQrCode("Bulletin émis le ".now()->format('d/m/Y'), "Bulletin QR Code");
+            $qrCodePath = $this->generateQrCode("Document emis le ".now()->format('d/m/Y'), "Document QR Code");
 
             $relevesNotesController = new ReleveNotesController();
             $pdfresponse = $relevesNotesController($cycle, $filiere, $classe, $unites, $notes, $meansPerMatiere, $year_part, $qrCodePath);
@@ -553,7 +553,7 @@ class ReleveController extends Controller
             Log::error("Après le foreach: " . json_encode($meansPerMatiere));
             $cycle   = Cycle::findOrFail($classe->cycle);
             $filiere = Filiere::findOrFail($classe->filiere);
-            $qrCodePath = $this->generateQrCode("Procès Verbal émis le ".now()->format('d/m/Y'), "Procès Verbal QR Code");
+            $qrCodePath = $this->generateQrCode("Proces Verbal emis le ".now()->format('d/m/Y'), "Procès Verbal QR Code");
             
             Log::error("Avant le RelevePVController: ");
             $relevesPVController = new RelevePVController();

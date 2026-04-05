@@ -396,7 +396,7 @@
                     </td>
                     <td>
                         <div style="border: 1px solid #ccc; padding: 4px; display: inline-block;">
-                            <img src="{{ $qrCodePath }}" alt="Code QR de certification" style="width: 60px; height: 60px; opacity: 0.7;"/>
+                            <img src="{{ $note['qrCodePath'] }}" alt="Code QR de certification" style="width: 60px; height: 60px; opacity: 0.7;"/>
                         </div>
                     </td>
                 </tr>

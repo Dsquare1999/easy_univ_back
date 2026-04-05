@@ -7,7 +7,7 @@
         /* 📜 On commande la page pour qu'elle soit en paysage par défaut */
         @page {
             size: A4 landscape;
-            margin: 12mm;
+            margin: 8mm;
         }
 
         body {
@@ -57,7 +57,7 @@
         .class-grades-table thead th {
             background-color: #e9ecef;
             font-weight: bold;
-            font-size: 7pt;
+            font-size: 5pt;
             /* padding: 6px 3px; */
             padding: 2px;
         }
@@ -66,16 +66,16 @@
         }
         .subject-header-row th {
             font-weight: normal;
-            font-size: 7pt;
+            font-size: 5pt;
         }
 
         tbody{
-            font-size: 7pt;
+            font-size: 5pt;
         }
 
         /* 👤 Style des colonnes spécifiques. */
         .student-name-col {
-            width: 220px; /* On garde cette largeur pour guider le rendu */
+            width: 150px; /* On garde cette largeur pour guider le rendu */
             text-align: left;
             padding-left: 8px;
         }

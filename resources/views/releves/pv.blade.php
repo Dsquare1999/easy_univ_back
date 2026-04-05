@@ -7,7 +7,7 @@
         /* 📜 On commande la page pour qu'elle soit en paysage par défaut */
         @page {
             size: A4 landscape;
-            margin: 8mm;
+            margin: 5mm;
         }
 
         body {
@@ -75,9 +75,9 @@
 
         /* 👤 Style des colonnes spécifiques. */
         .student-name-col {
-            width: 150px; /* On garde cette largeur pour guider le rendu */
+            width: 90px; /* On garde cette largeur pour guider le rendu */
             text-align: left;
-            padding-left: 8px;
+            padding-left: 5px;
         }
 
         /* 🦓 Les rayures zébrées. On ne peut pas utiliser nth-child, on le fera dans Blade. */
@@ -162,13 +162,13 @@
             <table class="class-grades-table">
                 <thead>
                     <tr class="ue-header-row">
-                        <th rowspan="3" style="width: 20px;">N°</th>
+                        <th rowspan="3" style="width: 15px;">N°</th>
                         <th rowspan="3" class="student-name-col">Noms et Prénoms</th>
                         @foreach($unites as $unite)
                             <th colspan="{{ $unite->matieres->count() * 3 }}">{{ $unite->name }}</th>
                         @endforeach
-                        <th rowspan="3" class="summary-col" style="width: 20px;">Moy. Gén.</th>
-                        <th rowspan="3" class="summary-col" style="width: 20px;">Côte</th>
+                        <th rowspan="3" class="summary-col" style="width: 15px;">Moy. Gén.</th>
+                        <th rowspan="3" class="summary-col" style="width: 15px;">Côte</th>
                     </tr>
                     <tr class="subject-header-row">
                         @foreach($unites as $unite)

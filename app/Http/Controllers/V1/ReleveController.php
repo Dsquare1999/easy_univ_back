@@ -140,7 +140,7 @@ class ReleveController extends Controller
                 
                 $user = User::find($student->user);
                 // ID court (5 premiers caractères)
-                $shortId = substr($user->id, 0, 5);
+                $shortId = 'ID-'.substr($user->id, 0, 5);
 
                 // Nom complet
                 $fullName = $user->lastname . ' ' . $user->firstname;
@@ -222,7 +222,9 @@ class ReleveController extends Controller
                 if (empty($row[0])) continue; // Ignorer les lignes vides
 
                 $shortId = $row[0];
-                $user = User::where('id', 'LIKE', $shortId . '%')->first();
+                // Extraire le ID de l'utilisateur (5 premiers caractères après "ID-")
+                $userId = substr($shortId, 3);
+                $user = User::where('id', 'LIKE', $userId . '%')->first();
 
                 if (!$user) {
                     $errors[] = "Ligne {$processedRows}: ID utilisateur non trouvé ({$shortId})";

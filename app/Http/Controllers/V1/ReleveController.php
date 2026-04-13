@@ -371,7 +371,7 @@ class ReleveController extends Controller
     /**
      * Generate PDF for student report.
      */
-    public function generate($id, $year_part)
+    public function generate($id, $year_part, $reportType)
     {
         try {
             $notes = [];
@@ -447,10 +447,10 @@ class ReleveController extends Controller
 
             $cycle   = Cycle::findOrFail($classe->cycle);
             $filiere = Filiere::findOrFail($classe->filiere);
-            // $qrCodePath = $this->generateQrCode("Document emis le ".now()->format('d/m/Y'), "Document QR Code");
+            $qrCodePath = $this->generateQrCode("Document emis le ".now()->format('d/m/Y'), "Document QR Code");
 
             $relevesNotesController = new ReleveNotesController();
-            $pdfresponse = $relevesNotesController($cycle, $filiere, $classe, $unites, $notes, $meansPerMatiere, $year_part, $qrCodePath);
+            $pdfresponse = $relevesNotesController($cycle, $filiere, $classe, $unites, $notes, $meansPerMatiere, $year_part, $qrCodePath, $reportType);
 
             return response()->json([
                 'success' => true,

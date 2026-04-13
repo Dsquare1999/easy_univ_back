@@ -56,7 +56,6 @@ class ReleveNotesController extends Controller
             }
 
         }else{
-            Log::info("Génération des bulletins pour le cycle: {$cycle->name}, filière: {$filiere->name}");
 
             try {
                 Log::info("Génération des bulletins pour le cycle: {$cycle->name}, filière: {$filiere->name}");

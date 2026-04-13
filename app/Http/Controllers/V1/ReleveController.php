@@ -400,13 +400,11 @@ class ReleveController extends Controller
                     // Envoyer la réponse normalement
                     $response->send();
                     
-                    // Vider et fermer tous les buffers
                     if (ob_get_level() > 0) {
                         ob_end_flush();
                     }
                     flush();
                     
-                    // Fermer la session si elle est ouverte
                     if (session_status() === PHP_SESSION_ACTIVE) {
                         session_write_close();
                     }
@@ -428,7 +426,6 @@ class ReleveController extends Controller
 
             $students = $classe->students;
 
-            // Tri des étudiants par ordre alphabétique (lastname, firstname)
             $students = $students->sortBy(function($student) {
                 $user = User::find($student->user);
                 return $user ? $user->lastname . ' ' . $user->firstname : '';

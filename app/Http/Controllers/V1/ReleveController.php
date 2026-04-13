@@ -374,10 +374,16 @@ class ReleveController extends Controller
     public function generate($id, $year_part, $reportType)
     {
         try {
-            // Pour les bulletins (reportType = 0), retourner une réponse immédiate
+            
+            // Pour les bulletins (reportType = 0), lancer un Job en arrière-plan
             if ($reportType == 0) {
-                // Envoyer la réponse au client immédiatement
-                $response = response()->json([
+                Log::error("Début de bullein process: ");
+
+                \App\Jobs\GenerateBulletinsJob::dispatch($id, $year_part, $reportType);
+                
+                Log::error("Début de bullein launched: ");
+
+                return response()->json([
                     'success' => true,
                     'message' => 'La génération des bulletins a été lancée en arrière-plan',
                     'data' => [
@@ -385,34 +391,10 @@ class ReleveController extends Controller
                         'year_part' => $year_part,
                         'status' => 'processing'
                     ]
-                ], 202); // 202 Accepted
-                
-                // Envoyer la réponse et fermer la connexion
-                if (function_exists('fastcgi_finish_request')) {
-                    $response->send();
-                    fastcgi_finish_request();
-                } else {
-                    // Fallback pour les environnements non-FPM
-                    // Ignorer les erreurs de sortie
-                    ignore_user_abort(true);
-                    set_time_limit(0);
-                    
-                    // Envoyer la réponse normalement
-                    $response->send();
-                    
-                    if (ob_get_level() > 0) {
-                        ob_end_flush();
-                    }
-                    flush();
-                    
-                    if (session_status() === PHP_SESSION_ACTIVE) {
-                        session_write_close();
-                    }
-                }
-                
-                // Le reste du code continue en arrière-plan
+                ], 202);
             }
             
+            // Pour les relevés (reportType = 1), traitement synchrone normal
             $notes = [];
             $classe = Classe::with(['matieres.unite'])->findOrFail($id);
             $matieres = $classe->matieres;
@@ -490,14 +472,6 @@ class ReleveController extends Controller
             $relevesNotesController = new ReleveNotesController();
             $pdfresponse = $relevesNotesController($cycle, $filiere, $classe, $unites, $notes, $meansPerMatiere, $year_part, $qrCodePath, $reportType);
 
-            // Pour les bulletins (reportType = 0), la réponse a déjà été envoyée
-            // On ne retourne rien pour éviter une erreur
-            if ($reportType == 0) {
-                Log::info("Bulletins générés avec succès en arrière-plan pour la classe: " . $id);
-                return; // Sortir sans retourner de réponse
-            }
-            
-            // Pour les relevés (reportType = 1), retourner la réponse normale
             return response()->json([
                 'success' => true,
                 'message' => 'Releve generated successfully',
@@ -507,13 +481,6 @@ class ReleveController extends Controller
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             Log::error("Releve not found: " . $e->getMessage());
-            
-            // Si c'est un bulletin, la réponse a déjà été envoyée, on log juste l'erreur
-            if ($reportType == 0) {
-                Log::error("Erreur lors de la génération des bulletins en arrière-plan: " . $e->getMessage());
-                return;
-            }
-            
             return response()->json([
                 'success' => false,
                 'message' => 'Releve not found',
@@ -522,13 +489,6 @@ class ReleveController extends Controller
         } catch (\Exception $e) {
             Log::error("Failed to generate releve: " . $e->getMessage());
             Log::error("Error details: " . $e->getTraceAsString());
-            
-            // Si c'est un bulletin, la réponse a déjà été envoyée, on log juste l'erreur
-            if ($reportType == 0) {
-                Log::error("Erreur lors de la génération des bulletins en arrière-plan: " . $e->getMessage());
-                return;
-            }
-            
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve releve',

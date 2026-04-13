@@ -392,6 +392,7 @@ class ReleveController extends Controller
                 $user = User::find($student->user);
                 return $user ? $user->lastname . ' ' . $user->firstname : '';
             });
+            $qrCodePath = $this->generateQrCode("Document emis le ".now()->format('d/m/Y'), "Document QR Code");
 
             $releves = Releve::with(['matiere.unite', 'student.user'])->where('classe', $id)->get();
             foreach ($students as $student) {
@@ -405,9 +406,9 @@ class ReleveController extends Controller
                 $note['user'] = $user;
                 $note['student'] = $student;
 
-                $frontendUrl = env('FRONTEND_URL', 'https://easyuniv.lephenix.bj');
-                $qrCodeData = $frontendUrl . '/user/' . $user->id;
-                $qrCodePath = $this->generateQrCode($qrCodeData, 'qr_code_' . $user->id . '.png');
+                // $frontendUrl = env('FRONTEND_URL', 'https://easyuniv.lephenix.bj');
+                // // $qrCodeData = $frontendUrl . '/user/' . $user->id;
+                // // $qrCodePath = $this->generateQrCode($qrCodeData, 'qr_code_' . $user->id . '.png');
                 $note['qrCodePath'] = $qrCodePath;
 
                 $note['notes'] = [];
@@ -446,7 +447,7 @@ class ReleveController extends Controller
 
             $cycle   = Cycle::findOrFail($classe->cycle);
             $filiere = Filiere::findOrFail($classe->filiere);
-            $qrCodePath = $this->generateQrCode("Document emis le ".now()->format('d/m/Y'), "Document QR Code");
+            // $qrCodePath = $this->generateQrCode("Document emis le ".now()->format('d/m/Y'), "Document QR Code");
 
             $relevesNotesController = new ReleveNotesController();
             $pdfresponse = $relevesNotesController($cycle, $filiere, $classe, $unites, $notes, $meansPerMatiere, $year_part, $qrCodePath);

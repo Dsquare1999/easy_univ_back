@@ -197,7 +197,7 @@
                             <td class="value-box">{{ $user->email }}</td>
                         </tr>
                         <tr>
-                            <td class="form-group-label">Éduc Master :</td>
+                            <td class="form-group-label">Matricule :</td>
                             <td class="value-box">{{ $student->matricule ?? 'Non défini' }}</td>
                         </tr>
                         <tr>

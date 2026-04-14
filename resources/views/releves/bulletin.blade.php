@@ -240,7 +240,7 @@
                         <p><strong>Nom :</strong> {{ $note['user']->lastname }}</p>
                         <p><strong>Prénoms :</strong> {{ $note['user']->firstname }}</p>
                         <p><strong>Date de Naissance :</strong> {{ $note['user']->birthdate }} à {{ $note['user']->birthplace }}</p>
-                        <p><strong>Éduc Master :</strong> {{ $note['user']->matricule }}</p>
+                        <p><strong>Matricule :</strong> {{ $note['user']->matricule }} &nbsp;&nbsp;&nbsp; <strong>Sexe :</strong> {{ $note['user']->sexe }}</p>
                     </td>
                     <td>
                         <p><strong>Cycle :</strong> {{ $cycle->name }}</p>

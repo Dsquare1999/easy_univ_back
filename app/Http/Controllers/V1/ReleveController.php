@@ -371,30 +371,11 @@ class ReleveController extends Controller
     /**
      * Generate PDF for student report.
      */
-    public function generate($id, $year_part, $reportType)
+    public function generate($id, $year_part)
     {
         try {
-            
-            // Pour les bulletins (reportType = 0), lancer un Job en arrière-plan
-            if ($reportType == 0) {
-                Log::error("Début de bullein process: ");
+            $reportType = 1;
 
-                \App\Jobs\GenerateBulletinsJob::dispatch($id, $year_part, $reportType);
-                
-                Log::error("Début de bullein launched: ");
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'La génération des bulletins a été lancée en arrière-plan',
-                    'data' => [
-                        'classe_id' => $id,
-                        'year_part' => $year_part,
-                        'status' => 'processing'
-                    ]
-                ], 202);
-            }
-            
-            // Pour les relevés (reportType = 1), traitement synchrone normal
             $notes = [];
             $classe = Classe::with(['matieres.unite'])->findOrFail($id);
             $matieres = $classe->matieres;
@@ -408,6 +389,7 @@ class ReleveController extends Controller
 
             $students = $classe->students;
 
+            // Tri des étudiants par ordre alphabétique (lastname, firstname)
             $students = $students->sortBy(function($student) {
                 $user = User::find($student->user);
                 return $user ? $user->lastname . ' ' . $user->firstname : '';
@@ -426,9 +408,6 @@ class ReleveController extends Controller
                 $note['user'] = $user;
                 $note['student'] = $student;
 
-                // $frontendUrl = env('FRONTEND_URL', 'https://easyuniv.lephenix.bj');
-                // // $qrCodeData = $frontendUrl . '/user/' . $user->id;
-                // // $qrCodePath = $this->generateQrCode($qrCodeData, 'qr_code_' . $user->id . '.png');
                 $note['qrCodePath'] = $qrCodePath;
 
                 $note['notes'] = [];
@@ -467,7 +446,6 @@ class ReleveController extends Controller
 
             $cycle   = Cycle::findOrFail($classe->cycle);
             $filiere = Filiere::findOrFail($classe->filiere);
-            $qrCodePath = $this->generateQrCode("Document emis le ".now()->format('d/m/Y'), "Document QR Code");
 
             $relevesNotesController = new ReleveNotesController();
             $pdfresponse = $relevesNotesController($cycle, $filiere, $classe, $unites, $notes, $meansPerMatiere, $year_part, $qrCodePath, $reportType);
@@ -492,6 +470,112 @@ class ReleveController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve releve',
+                'errors'  => ['message' => $e->getMessage()],
+            ], 500);
+        }
+    }
+
+    public function generateSingle($id, $year_part, $studentId)
+    {
+        try {
+
+            Log::error("Bulletin generation started for user: " . $studentId);
+            
+            $reportType = 0;
+            $notes = [];
+            $classe = Classe::with(['matieres.unite'])->findOrFail($id);
+            $matieres = $classe->matieres;
+            $matieres = $matieres->where('year_part', $year_part);
+            
+            $uniteIds = $matieres->pluck('unite')->filter()->unique()->values()->all();
+
+            $unites = Unite::with(['matieres' => function($q) use ($matieres) {
+                $q->whereIn('id', $matieres->pluck('id'))->orderBy('libelle', 'asc');
+            }])->whereIn('id', $uniteIds)->orderBy('code', 'asc')->get();
+
+            $students = $classe->students;
+
+            $thisStudent = $students->firstWhere('id', $studentId);
+            $frontendUrl = env('FRONTEND_URL', 'https://easyuniv.lephenix.bj');
+            $qrCodeData = $frontendUrl . '/user/' . $thisStudent->user;
+            $qrCodePath = $this->generateQrCode($qrCodeData, 'qr_code_' . $thisStudent->user . '.png');
+
+            $releves = Releve::with(['matiere.unite', 'student.user'])->where('classe', $id)->get();
+                            
+            $user = User::find($thisStudent->user);
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found',
+                    'errors'  => ['message' => 'User not found'],
+                ], 404);
+            }
+
+            $note = [];
+            $note['name'] = $user->lastname . ' ' . $user->firstname;
+            $note['user'] = $user;
+            $note['student'] = $thisStudent;
+            $note['qrCodePath'] = $qrCodePath;
+
+            $note['notes'] = [];
+
+            $somme_notes = 0;
+            $somme_coeffs = 0;
+
+            foreach ($releves as $releve) {
+                if ($releve->student == $thisStudent->id) {
+                    $moyenne = ((($releve->exam1 + $releve->exam2) / 2) * 0.4) + ($releve->partial * 0.6);
+                    if ($releve->remedial) {
+                        $moyenne = $releve->remedial;
+                    }
+                    $moyenne = round($moyenne, 2);
+                    $matiere = Matiere::find($releve->matiere);
+                    if (!$matiere) {
+                        continue;
+                    }
+                    $note['notes'][$matiere->code] = $moyenne;
+
+                    // Pour la moyenne générale
+                    $somme_notes += $moyenne * $matiere->coefficient;
+                    $somme_coeffs += $matiere->coefficient;
+                }
+            }
+
+            // Moyenne générale pondérée
+            $note['moyenne'] = $somme_coeffs > 0 ? round($somme_notes / $somme_coeffs, 2) : null;
+
+            // Décision
+            $note['cote'] = $this->getCote($note['moyenne']);
+            $notes[] = $note;
+        
+            $meansPerMatiere = $this->generalMeanPerMatiere($notes, $matieres);
+
+            $cycle   = Cycle::findOrFail($classe->cycle);
+            $filiere = Filiere::findOrFail($classe->filiere);
+
+            $relevesNotesController = new ReleveNotesController();
+            $pdfresponse = $relevesNotesController($cycle, $filiere, $classe, $unites, $notes, $meansPerMatiere, $year_part, $qrCodePath, $reportType);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Bulletin generated successfully',
+                'data'    => $notes,
+                'pdfresponse' => $pdfresponse
+            ], 201);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            Log::error("Bulletin not found: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Bulletin not found',
+                'errors'  => ['message' => $e->getMessage()],
+            ], 404);
+        } catch (\Exception $e) {
+            Log::error("Failed to generate bulletin: " . $e->getMessage());
+            Log::error("Error details: " . $e->getTraceAsString());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Failed to retrieve bulletin',
                 'errors'  => ['message' => $e->getMessage()],
             ], 500);
         }

@@ -131,7 +131,8 @@ Route::prefix('/v1/releves')->middleware('auth:sanctum', 'ability:' . EasyUnivTo
     Route::post("/mark", [ReleveController::class,"mark"]);
     Route::get("/download/{classeId}/{matiereId}", [ReleveController::class,"download"]);
     Route::post("/import/{classeId}/{matiereId}", [ReleveController::class,"import"]);
-    Route::post("/generate/{id}/{year_part}/{reportType}",  [ReleveController::class,"generate"]);
+    Route::post("/generate/{id}/{year_part}",  [ReleveController::class,"generate"]);
+    Route::post("/generate-single/{id}/{year_part}/{studentId}",  [ReleveController::class,"generateSingle"]);
     Route::post("/generate-pv/{id}/{year_part}",  [ReleveController::class,"generatePV"]);
     Route::match(['put', 'patch'], '/update/{id}',  [ReleveController::class,"update"]);
     Route::delete("/destroy/{id}",  [ReleveController::class,"destroy"]);

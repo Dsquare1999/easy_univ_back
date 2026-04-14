@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('path')->nullable();
             $table->string('type')->nullable(); // e.g., 'pdf', 'docx',
 
-            $table->foreign('classe')->references('id')->on('classes')->onDelete('set null');
+            $table->foreign('classe')->references('id')->on('classes')->onDelete('cascade');
             $table->foreign('student')->references('id')->on('students')->onDelete('set null');
             $table->foreign('tag')->references('id')->on('tags')->onDelete('set null');
             $table->timestamps();

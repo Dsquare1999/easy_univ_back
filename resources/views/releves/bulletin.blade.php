@@ -5,14 +5,14 @@
     <title>Relevé de Notes - EPUMA</title>
     <style>
         @page {
-            margin: 8mm;
+            margin: 10mm;
         }
 
         body {
             font-family: 'Times New Roman', Times, serif;
             color: #000;
             line-height: 1.4;
-            font-size: 6pt;
+            font-size: 7pt;
             margin: 0;
         }
 
@@ -34,9 +34,9 @@
         .header-table h2, .header-table h3, .header-table h4, .header-table p {
             margin: 2px 0;
         }
-        .header-table h2 { font-size: 0.7em; }
-        .header-table h3 { font-size: 0.5em; }
-        .header-table h4 { font-size: 0.7em; font-style: italic;}
+        .header-table h2 { font-size: 0.8em; }
+        .header-table h3 { font-size: 0.7em; }
+        .header-table h4 { font-size: 0.8em; font-style: italic;}
         .logo-placeholder {
             width: 50px;
             height: 50px;
@@ -49,13 +49,13 @@
         .header-center-cell { width: 70%; }
 
         .header-center-cell p{
-            font-size: 0.6em;
+            font-size: 0.7em;
         }
 
         /** 📜 Le corps. */
         .main-title {
             text-align: center;
-            font-size: 1em;
+            font-size: 1.1em;
             font-weight: bold;
             text-decoration: underline;
             margin: 0.5rem 0 0.5rem 0;
@@ -90,7 +90,7 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 0;
-            font-size: 8px;
+            font-size: 9px;
         }
         .grades-table th, .grades-table td {
             border: 1px solid #333;
@@ -116,7 +116,7 @@
 
         /** 🖋️ Le pied de page. */
         .transcript-footer { 
-            font-size: 0.6em; 
+            font-size: 0.7em; 
         }
         .transcript-footer > table {
             width: 100%;
@@ -131,11 +131,11 @@
             text-align: center;
             padding-left: 10px;
         }
-        .grading-scale { font-size: 0.7em; text-align: center; margin-bottom: 0.5rem; }
+        .grading-scale { font-size: 0.8em; text-align: center; margin-bottom: 0.5rem; }
         .semester-average { text-align: center; margin-bottom: 0; font-size: 1em; }
         .average-box { display: inline-block; border: 1px solid #333; padding: 5px 15px; margin: 0 10px; position: relative; bottom: -10px; }
         .decision { text-align: center; font-size: 1em; margin-bottom: 2rem; }
-        .footer-contact { text-align: center; margin-top: 0; font-size: 0.7em; border-top: 1px solid #ccc; padding-top: 0.5rem; }
+        .footer-contact { text-align: center; margin-top: 0; font-size: 0.8em; border-top: 1px solid #ccc; padding-top: 0.5rem; }
 
         /* Le chaos des signatures, dompté par une table. */
         .signatures-table {
@@ -215,10 +215,7 @@
         <table class="header-table">
             <tr>
                 <td>
-                    <p style="font-size: 10px; text-align:left"><strong>Arrêté de création</strong>: Nº2025-0758/MESRS/DC/SGM/DGES/DOSES/CJ/SA/020SGG25</p>
-                </td>
-                <td>
-                    <p style="font-size: 10px; text-align:right"><strong>Arrêté d'autorisation d'ouverture</strong>: Nº2025-0762/MESRS/DC/SGM/DGES/DOSES/CJ/SA/020SGG25</p>
+                    <p style="font-size: 9px; text-align:left"><strong>Arrêté</strong>: Nº2025-0762/MESRS/DC/SGM/DGES/DOSES/CJ/SA/020SGG25</p>
                 </td>
             </tr>
         </table>

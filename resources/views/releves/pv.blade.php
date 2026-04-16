@@ -7,13 +7,13 @@
         /* 📜 On commande la page pour qu'elle soit en paysage par défaut */
         @page {
             size: A4 landscape;
-            margin: 5mm;
+            margin: 3mm;
         }
 
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
             color: #000;
-            font-size: 7pt;
+            font-size: 4pt;
             margin: 0;
         }
 
@@ -57,7 +57,7 @@
         .class-grades-table thead th {
             background-color: #e9ecef;
             font-weight: bold;
-            font-size: 5pt;
+            font-size: 4pt;
             /* padding: 6px 3px; */
             padding: 2px;
         }
@@ -66,11 +66,11 @@
         }
         .subject-header-row th {
             font-weight: normal;
-            font-size: 5pt;
+            font-size: 4pt;
         }
 
         tbody{
-            font-size: 5pt;
+            font-size: 4pt;
         }
 
         /* 👤 Style des colonnes spécifiques. */
@@ -107,15 +107,15 @@
         .class-average-row td {
             background-color: #e9ecef;
             font-weight: bold;
-            font-size: 0.9em;
+            font-size: 0.8em;
             border-top: 2px solid #555;
         }
 
         /** 🖋️ Le pied de page, également reconstruit avec une table. */
         .footer-table {
             width: 100%;
-            margin-top: 2rem;
-            padding-top: 1rem;
+            margin-top: 1rem;
+            padding-top: 0.5rem;
             border-top: 1px solid #000;
         }
         .footer-date-cell { text-align: left; vertical-align: bottom; }
@@ -142,15 +142,15 @@
                 </td>
                 <td>
                     <h3>ECOLE POLYTECHNIQUE UNIVERSITAIRE DES METIERS D'AVENIR (EPUMA) LE PHENIX</h3>
-                    <p><strong>Arrêté de création</strong>: Nº2025-0758/MESRS/DC/SGM/DGES/DOSES/CJ/SA/020SGG25</p>
-                    <p><strong>Arrêté d'autorisation d'ouverture</strong>: Nº2025-0762/MESRS/DC/SGM/DGES/DOSES/CJ/SA/020SGG25</p>
+                    <p><strong>Autorisation</strong>: Nº2025-0762/MESRS/DC/SGM/DGES/DOSES/CJ/SA/020SGG25</p>
+                    <p><strong>Année universitaire :</strong> {{ $classe->academic_year }}-{{ $classe->academic_year + 1 }}</p>
                 </td>
                 <td class="header-right-cell">
                     @php
                         $semesterNumber = ($classe->year - 1) * 2 + $year_part;
                     @endphp
-                    <h4>{{ $cycle->name }} - {{ $filiere->name }} - Semestre {{ $year_part == 1 ? 'I' : 'II' }}</h4>
-                    <p><strong>Année universitaire :</strong> {{ $classe->academic_year }}-{{ $classe->academic_year + 1 }}</p>
+                    <h4>{{ $cycle->name }} - {{ $filiere->name }}</h4>
+                    <p><strong>Semestre :</strong> {{ $year_part == 1 ? 'I' : 'II' }}</p>
                     <p><strong>N°LS{{ $semesterNumber }}-........./PDG/DE-EPUMA/SAF/SA</strong></p>
                 </td>
             </tr>

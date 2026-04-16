@@ -5,14 +5,14 @@
     <title>Relevé de Notes - EPUMA</title>
     <style>
         @page {
-            margin: 15mm;
+            margin: 8mm;
         }
 
         body {
             font-family: 'Times New Roman', Times, serif;
             color: #000;
             line-height: 1.4;
-            font-size: 10pt;
+            font-size: 6pt;
             margin: 0;
         }
 
@@ -34,28 +34,28 @@
         .header-table h2, .header-table h3, .header-table h4, .header-table p {
             margin: 2px 0;
         }
-        .header-table h2 { font-size: 0.8em; }
-        .header-table h3 { font-size: 0.6em; }
-        .header-table h4 { font-size: 0.8em; font-style: italic;}
+        .header-table h2 { font-size: 0.7em; }
+        .header-table h3 { font-size: 0.5em; }
+        .header-table h4 { font-size: 0.7em; font-style: italic;}
         .logo-placeholder {
             width: 50px;
             height: 50px;
             text-align: center;
             line-height: 50px;
             color: #999;
-            font-size: 0.8em;
+            font-size: 0.7em;
             margin: 0 auto;
         }
         .header-center-cell { width: 70%; }
 
         .header-center-cell p{
-            font-size: 0.8em;
+            font-size: 0.6em;
         }
 
         /** 📜 Le corps. */
         .main-title {
             text-align: center;
-            font-size: 1.2em;
+            font-size: 1em;
             font-weight: bold;
             text-decoration: underline;
             margin: 0.5rem 0 0.5rem 0;
@@ -70,13 +70,13 @@
 
         /** 👤 Les infos de l'étudiant, maintenant une table à 2 colonnes. */
         .student-info-table {
-            font-size: 12px;
+            font-size: 8px;
             width: 100%;
             margin-bottom: 1rem;
         }
         .student-info-table td {
             vertical-align: top;
-            padding: 0 0.8rem;
+            padding: 0 0.7rem;
         }
         .student-info-table td.student-photo-cell {
             padding: 0;
@@ -90,11 +90,11 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 0;
-            font-size: 10px;
+            font-size: 8px;
         }
         .grades-table th, .grades-table td {
             border: 1px solid #333;
-            padding: 6px 8px;
+            padding: 3px 6px;
             text-align: left;
             vertical-align: middle;
         }
@@ -116,7 +116,7 @@
 
         /** 🖋️ Le pied de page. */
         .transcript-footer { 
-            font-size: 0.8em; 
+            font-size: 0.6em; 
         }
         .transcript-footer > table {
             width: 100%;
@@ -131,11 +131,11 @@
             text-align: center;
             padding-left: 10px;
         }
-        .grading-scale { font-size: 0.8em; text-align: center; margin-bottom: 0.8rem; }
+        .grading-scale { font-size: 0.7em; text-align: center; margin-bottom: 0.5rem; }
         .semester-average { text-align: center; margin-bottom: 0; font-size: 1em; }
         .average-box { display: inline-block; border: 1px solid #333; padding: 5px 15px; margin: 0 10px; position: relative; bottom: -10px; }
         .decision { text-align: center; font-size: 1em; margin-bottom: 2rem; }
-        .footer-contact { text-align: center; margin-top: 0; font-size: 0.8em; border-top: 1px solid #ccc; padding-top: 0.5rem; }
+        .footer-contact { text-align: center; margin-top: 0; font-size: 0.7em; border-top: 1px solid #ccc; padding-top: 0.5rem; }
 
         /* Le chaos des signatures, dompté par une table. */
         .signatures-table {
@@ -149,7 +149,7 @@
             position: relative; /* Contexte pour les tampons */
         }
         .signature-placeholder {
-            margin-top: 2rem;
+            margin-top: 1rem;
             font-style: italic;
             color: #555;
         }
@@ -170,7 +170,7 @@
             text-align: center;
             position: absolute;
             font-weight: bold;
-            font-size: 0.8em;
+            font-size: 0.7em;
             line-height: 1.2;
             padding-top: 25px; /* Simule un alignement vertical */
             box-sizing: border-box;
@@ -258,7 +258,6 @@
                         <th style="width: 60%;">Code - UE</th>
                         <th style="width: 10%;">Crédits</th>
                         <th style="width: 10%;">Note /20</th>
-                        <th style="width: 10%;">Crédits validés</th>
                         <th style="width: 10%;">Côte</th>
                     </tr>
                 </thead>
@@ -266,7 +265,6 @@
                     @php
                         $moyenne_generale = 0;
                         $total_total_coeffs = 0;
-                        $total_coeffs_valides = 0;
 
                         $calculateGrade = function($moyenne) {
                             if (is_null($moyenne)) return '';
@@ -284,16 +282,11 @@
                             $total_coeffs = $unite->matieres->sum('coefficient');
                             
                             $somme_ponderee = 0;
-                            $credits_valides = 0;
 
                             foreach($unite->matieres as $m) {
                                 $valeur_note = $note['notes'][$m->code] ?? 0;
                                 
                                 $somme_ponderee += $valeur_note;
-
-                                if($valeur_note >= 10) {
-                                    $credits_valides += $m->coefficient;
-                                }
                             }
 
                             
@@ -302,7 +295,6 @@
                             // Adding general informations
                             $moyenne_generale += $moyenne_ue * $total_coeffs;
                             $total_total_coeffs += $total_coeffs;
-                            $total_coeffs_valides += $credits_valides;
 
                         @endphp
 
@@ -315,13 +307,8 @@
                             </th>
 
                             {{-- Moyenne pondérée --}}
-                            <th colspan="1" class="center-text" style="{{ $moyenne_ue < 10 ? 'color: red;' : '' }}">
+                            <th colspan="1" class="center-text" style="{{ $moyenne_ue < 12 ? 'color: red;' : '' }}">
                                 {{ number_format($moyenne_ue, 2, ',', '.') }}
-                            </th>
-
-                            {{-- Crédits validés --}}
-                            <th colspan="1" class="center-text">
-                                {{ $credits_valides }}
                             </th>
 
                             <th colspan="1" class="center-text">{{ $calculateGrade($moyenne_ue) }}</th>
@@ -338,9 +325,6 @@
                                     @else
                                         N/A
                                     @endif
-                                </td>
-                                <td class="center-text">
-                                    {{ $note['notes'][$matiere->code] >= 10 ? $matiere->coefficient : 0 }}
                                 </td>
                                 <td class="center-text">
                                     @if(isset($note['notes'][$matiere->code]))
@@ -360,7 +344,6 @@
                             {{ $total_total_coeffs ? $total_total_coeffs : 'N/A' }}
                         </strong></td>
                         <td></td>
-                        <td colspan="1" class="center-text"><strong>{{ $total_coeffs_valides }}</strong></td>
                         <td colspan="1"></td>
                     </tr>
                 </tfoot>

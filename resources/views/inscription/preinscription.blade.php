@@ -153,8 +153,8 @@
                     <h1>EPUMA Le Phénix</h1>
                     <h2>Fiche de Pré-Inscription</h2>
                     <p><strong>Compte</strong> Coris Bank CPET LE PHENIX N° 002420224101</p>
-                    <p><strong>Arrêté de création</strong>: Nº2025-0758/MESRS/DC/SGM/DGES/DOSES/CJ/SA/020SGG25</p>
-                    <p><strong>Arrêté d'autorisation d'ouverture</strong>: Nº2025-0762/MESRS/DC/SGM/DGES/DOSES/CJ/SA/020SGG25</p>
+                    <!-- <p><strong>Arrêté de création</strong>: Nº2025-0758/MESRS/DC/SGM/DGES/DOSES/CJ/SA/020SGG25</p> -->
+                    <p><strong>Arrêté</strong>: Nº2025-0762/MESRS/DC/SGM/DGES/DOSES/CJ/SA/020SGG25</p>
                 </td>
                 <td style="vertical-align: top; text-align: right;">
                     <img src="{{ public_path('storage/logo-epuma.png') }}" alt="Logo EPUMA" class="logo-epuma"/>

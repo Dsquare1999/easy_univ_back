@@ -134,15 +134,15 @@
                 </td>
                 <td>
                     <h3>ECOLE POLYTECHNIQUE UNIVERSITAIRE DES METIERS D'AVENIR (EPUMA) LE PHENIX</h3>
-                    <p><strong>Arrêté de création</strong>: Nº2025-0758/MESRS/DC/SGM/DGES/DOSES/CJ/SA/020SGG25</p>
-                    <p><strong>Arrêté d'autorisation d'ouverture</strong>: Nº2025-0762/MESRS/DC/SGM/DGES/DOSES/CJ/SA/020SGG25</p>
+                    <p><strong>Autorisation</strong>: Nº2025-0762/MESRS/DC/SGM/DGES/DOSES/CJ/SA/020SGG25</p>
+                    <p><strong>Année universitaire :</strong> {{ $classe->academic_year }}-{{ $classe->academic_year + 1 }}</p>
                 </td>
                 <td class="header-right-cell">
                     @php
                         $semesterNumber = ($classe->year - 1) * 2 + $year_part;
                     @endphp
-                    <h4>{{ $cycle->name }} - {{ $filiere->name }} - Semestre {{ $year_part == 1 ? 'I' : 'II' }}</h4>
-                    <p><strong>Année universitaire :</strong> {{ $classe->academic_year }}-{{ $classe->academic_year + 1 }}</p>
+                    <h4>{{ $cycle->name }} - {{ $filiere->name }}</h4>
+                    <p><strong>Semestre :</strong> {{ $year_part == 1 ? 'I' : 'II' }}</p>
                     <p><strong>N°LS{{ $semesterNumber }}-........./PDG/DE-EPUMA/SAF/SA</strong></p>
                 </td>
             </tr>

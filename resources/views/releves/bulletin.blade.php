@@ -304,7 +304,7 @@
                             </th>
 
                             {{-- Moyenne pondérée --}}
-                            <th colspan="1" class="center-text" style="{{ $moyenne_ue < 10 ? 'color: red;' : '' }}">
+                            <th colspan="1" class="center-text" style="{{ $moyenne_ue < 12 ? 'color: red;' : '' }}">
                                 {{ number_format($moyenne_ue, 2, ',', '.') }}
                             </th>
 
@@ -316,7 +316,7 @@
                                 <td class="center-text">
                                     {{ $matiere->coefficient }}
                                 </td>
-                                <td class="center-text" style="{{ isset($note['notes'][$matiere->code]) && $note['notes'][$matiere->code] < 10 ? 'color: red;' : '' }}">
+                                <td class="center-text" style="{{ isset($note['notes'][$matiere->code]) && $note['notes'][$matiere->code] < 12 ? 'color: red;' : '' }}">
                                     @if(isset($note['notes'][$matiere->code]))
                                         {{ number_format($note['notes'][$matiere->code], 2, ',', '.') }}
                                     @else

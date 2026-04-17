@@ -5,7 +5,7 @@
     <title>Relevé de Notes - EPUMA</title>
     <style>
         @page {
-            margin: 10mm 15mm;
+            margin: 5mm 15mm;
         }
 
         body {
@@ -94,7 +94,7 @@
         }
         .grades-table th, .grades-table td {
             border: 1px solid #333;
-            padding: 6px 8px;
+            padding: 5px 8px;
             text-align: left;
             vertical-align: middle;
         }
@@ -149,7 +149,7 @@
             position: relative; /* Contexte pour les tampons */
         }
         .signature-placeholder {
-            margin-top: 2rem;
+            margin-top: 1rem;
             font-style: italic;
             color: #555;
         }
@@ -324,9 +324,6 @@
                                     @endif
                                 </td>
                                 <td class="center-text">
-                                    {{ $note['notes'][$matiere->code] >= 10 ? $matiere->coefficient : 0 }}
-                                </td>
-                                <td class="center-text">
                                     @if(isset($note['notes'][$matiere->code]))
                                         {{ $calculateGrade($note['notes'][$matiere->code])}}
                                     @else
@@ -378,8 +375,8 @@
                         </p>
                     </td>
                     <td>
-                        <div style="border: 1px solid #ccc; padding: 4px; display: inline-block;">
-                            <img src="{{ $note['qrCodePath'] }}" alt="Code QR de certification" style="width: 60px; height: 60px; opacity: 0.7;"/>
+                        <div style="border: 1px solid #ccc; padding: 2px; display: inline-block;">
+                            <img src="{{ $note['qrCodePath'] }}" alt="Code QR de certification" style="width: 50px; height: 50px; opacity: 0.7;"/>
                         </div>
                     </td>
                 </tr>

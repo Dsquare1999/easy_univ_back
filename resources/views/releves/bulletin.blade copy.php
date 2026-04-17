@@ -5,14 +5,14 @@
     <title>Relevé de Notes - EPUMA</title>
     <style>
         @page {
-            margin: 10mm 15mm;
+            margin: 10mm;
         }
 
         body {
             font-family: 'Times New Roman', Times, serif;
             color: #000;
             line-height: 1.4;
-            font-size: 10pt;
+            font-size: 7pt;
             margin: 0;
         }
 
@@ -35,7 +35,7 @@
             margin: 2px 0;
         }
         .header-table h2 { font-size: 0.8em; }
-        .header-table h3 { font-size: 0.6em; }
+        .header-table h3 { font-size: 0.7em; }
         .header-table h4 { font-size: 0.8em; font-style: italic;}
         .logo-placeholder {
             width: 50px;
@@ -43,19 +43,19 @@
             text-align: center;
             line-height: 50px;
             color: #999;
-            font-size: 0.8em;
+            font-size: 0.7em;
             margin: 0 auto;
         }
         .header-center-cell { width: 70%; }
 
         .header-center-cell p{
-            font-size: 0.8em;
+            font-size: 0.7em;
         }
 
         /** 📜 Le corps. */
         .main-title {
             text-align: center;
-            font-size: 1.2em;
+            font-size: 1.1em;
             font-weight: bold;
             text-decoration: underline;
             margin: 0.5rem 0 0.5rem 0;
@@ -70,13 +70,13 @@
 
         /** 👤 Les infos de l'étudiant, maintenant une table à 2 colonnes. */
         .student-info-table {
-            font-size: 12px;
+            font-size: 8px;
             width: 100%;
             margin-bottom: 1rem;
         }
         .student-info-table td {
             vertical-align: top;
-            padding: 0 0.8rem;
+            padding: 0 0.7rem;
         }
         .student-info-table td.student-photo-cell {
             padding: 0;
@@ -94,7 +94,7 @@
         }
         .grades-table th, .grades-table td {
             border: 1px solid #333;
-            padding: 6px 8px;
+            padding: 3px 6px;
             text-align: left;
             vertical-align: middle;
         }
@@ -116,7 +116,7 @@
 
         /** 🖋️ Le pied de page. */
         .transcript-footer { 
-            font-size: 0.8em; 
+            font-size: 0.7em; 
         }
         .transcript-footer > table {
             width: 100%;
@@ -131,7 +131,7 @@
             text-align: center;
             padding-left: 10px;
         }
-        .grading-scale { font-size: 0.8em; text-align: center; margin-bottom: 0.8rem; }
+        .grading-scale { font-size: 0.8em; text-align: center; margin-bottom: 0.5rem; }
         .semester-average { text-align: center; margin-bottom: 0; font-size: 1em; }
         .average-box { display: inline-block; border: 1px solid #333; padding: 5px 15px; margin: 0 10px; position: relative; bottom: -10px; }
         .decision { text-align: center; font-size: 1em; margin-bottom: 2rem; }
@@ -149,7 +149,7 @@
             position: relative; /* Contexte pour les tampons */
         }
         .signature-placeholder {
-            margin-top: 2rem;
+            margin-top: 1rem;
             font-style: italic;
             color: #555;
         }
@@ -170,7 +170,7 @@
             text-align: center;
             position: absolute;
             font-weight: bold;
-            font-size: 0.8em;
+            font-size: 0.7em;
             line-height: 1.2;
             padding-top: 25px; /* Simule un alignement vertical */
             box-sizing: border-box;
@@ -215,7 +215,7 @@
         <table class="header-table">
             <tr>
                 <td>
-                    <p style="font-size: 9px; text-align:center"><strong>Arrêté</strong>: Nº2025-0762/MESRS/DC/SGM/DGES/DOSES/CJ/SA/020SGG25</p>
+                    <p style="font-size: 9px; text-align:left"><strong>Arrêté</strong>: Nº2025-0762/MESRS/DC/SGM/DGES/DOSES/CJ/SA/020SGG25</p>
                 </td>
             </tr>
         </table>
@@ -237,7 +237,7 @@
                         <p><strong>Nom :</strong> {{ $note['user']->lastname }}</p>
                         <p><strong>Prénoms :</strong> {{ $note['user']->firstname }}</p>
                         <p><strong>Date de Naissance :</strong> {{ $note['user']->birthdate }} à {{ $note['user']->birthplace }}</p>
-                        <p><strong>Matricule :</strong> {{ $note['user']->matricule }}</p>
+                        <p><strong>Matricule :</strong> {{ $note['user']->matricule }} &nbsp;&nbsp;&nbsp; <strong>Sexe :</strong> {{ $note['user']->sexe }}</p>
                     </td>
                     <td>
                         <p><strong>Cycle :</strong> {{ $cycle->name }}</p>
@@ -253,8 +253,8 @@
                 <thead>
                     <tr>
                         <th style="width: 60%;">Code - UE</th>
-                        <th style="width: 15%;">Crédits</th>
-                        <th style="width: 15%;">Note /20</th>
+                        <th style="width: 10%;">Crédits</th>
+                        <th style="width: 10%;">Note /20</th>
                         <th style="width: 10%;">Côte</th>
                     </tr>
                 </thead>
@@ -304,7 +304,7 @@
                             </th>
 
                             {{-- Moyenne pondérée --}}
-                            <th colspan="1" class="center-text" style="{{ $moyenne_ue < 10 ? 'color: red;' : '' }}">
+                            <th colspan="1" class="center-text" style="{{ $moyenne_ue < 12 ? 'color: red;' : '' }}">
                                 {{ number_format($moyenne_ue, 2, ',', '.') }}
                             </th>
 
@@ -322,9 +322,6 @@
                                     @else
                                         N/A
                                     @endif
-                                </td>
-                                <td class="center-text">
-                                    {{ $note['notes'][$matiere->code] >= 10 ? $matiere->coefficient : 0 }}
                                 </td>
                                 <td class="center-text">
                                     @if(isset($note['notes'][$matiere->code]))

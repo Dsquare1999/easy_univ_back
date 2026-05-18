@@ -76,7 +76,8 @@ class User extends Authenticatable
         'diplomes',
         'autorisation_enseigner',
         'preuve_experience',
-        'address'
+        'address',
+        'access'
     ];
 
     /**

@@ -71,6 +71,7 @@ class UpdateUserRequest extends FormRequest
             'nationality' => ['sometimes', 'nullable', 'string', 'max:255'],
             'phone' => ['sometimes', 'nullable', 'string', 'max:20'],
             'type' => ['sometimes', 'string'],
+            'access' => ['sometimes', 'string'],
             'birthdate' => ['sometimes', 'nullable', 'date'],
             'birthplace' => ['sometimes', 'nullable', 'string', 'max:255'],
             'address' => ['sometimes', 'nullable', 'string', 'max:255'],
@@ -106,7 +107,7 @@ class UpdateUserRequest extends FormRequest
         try {
             $validatedData = parent::validated($key, $default);
             Log::info('Base validated data:', $validatedData ?? []);
-            $validatedData['password'] = bcrypt('password');
+            // $validatedData['password'] = bcrypt('password');
 
             // Traitement des fichiers
             foreach (['profile', 'acte_naissance', 'cip', 'attestation_bac', 'certificat_nationalite', 'curriculum_vitae', 'diplomes', 'autorisation_enseigner','preuve_experience'] as $file) {

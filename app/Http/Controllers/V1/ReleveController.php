@@ -489,6 +489,9 @@ class ReleveController extends Controller
             
             $uniteIds = $matieres->pluck('unite')->filter()->unique()->values()->all();
 
+            Log::error("Démarrage de la génération du bulletin: " . $studentId . " pour la classe: " . $id . " et l'année: " . $year_part);
+            Log::error("Notes trouvées : Step 1 " . var_dump($notes));
+
             $unites = Unite::with(['matieres' => function($q) use ($matieres) {
                 $q->whereIn('id', $matieres->pluck('id'))->orderBy('libelle', 'asc');
             }])->whereIn('id', $uniteIds)->orderBy('code', 'asc')->get();
@@ -501,7 +504,6 @@ class ReleveController extends Controller
             $qrCodePath = $this->generateQrCode($qrCodeData, 'qr_code_' . $thisStudent->user . '.png');
 
             $releves = Releve::with(['matiere.unite', 'student.user'])->where('classe', $id)->get();
-                            
             $user = User::find($thisStudent->user);
             if (!$user) {
                 return response()->json([
@@ -552,6 +554,8 @@ class ReleveController extends Controller
 
             $cycle   = Cycle::findOrFail($classe->cycle);
             $filiere = Filiere::findOrFail($classe->filiere);
+
+            Log::error("Notes trouvées : Step 2 " . var_dump($notes));
 
             $relevesNotesController = new ReleveNotesController();
             $pdfresponse = $relevesNotesController($cycle, $filiere, $classe, $unites, $notes, $meansPerMatiere, $year_part, $qrCodePath, $reportType);

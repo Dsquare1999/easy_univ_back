@@ -17,7 +17,7 @@ use Illuminate\Support\Str;
 
 class Classe extends Model
 {
-    use HasFactory;
+    use HasFactory; 
 
     protected $fillable = ['filiere', 'cycle', 'year', 'academic_year', 'parts', 'status', 'fee'];
 
